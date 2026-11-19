@@ -1,61 +1,108 @@
 import SwiftUI
 
-/// Flat grey card with the large corner radius used across Nothing X.
+/// Outlined tile with a hairline border, the container used across the app.
 struct NothingCard<Content: View>: View {
-    var padding: CGFloat = 14
+    var padding: CGFloat = 16
+    /// Stretch to the row height so tiles in a grid line up.
+    var fillsHeight = false
     @ViewBuilder var content: Content
 
     var body: some View {
         content
-            .padding(padding)   
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(CMFTheme.surface, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+            .padding(padding)
+            .frame(maxWidth: .infinity, maxHeight: fillsHeight ? .infinity : nil, alignment: .topLeading)
+            .background(CMFTheme.tile, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(CMFTheme.line, lineWidth: 1))
     }
 }
 
-/// Small dot-matrix section label.
+/// Mono caps tile label such as `POWER_SUPPLY`, with an optional readout on the right.
 struct SectionLabel: View {
     let title: String
     var trailing: String?
 
     var body: some View {
-        HStack {
-            DotText(text: title, dot: 1.9, gap: 0.9, color: CMFTheme.ink.opacity(0.85))
+        HStack(spacing: 6) {
+            RoundedRectangle(cornerRadius: 1).fill(CMFTheme.muted).frame(width: 6, height: 6)
+            Text(title.uppercased().replacingOccurrences(of: " ", with: "_"))
+                .font(.system(size: 9.5, weight: .semibold, design: .monospaced))
+                .tracking(1.1)
+                .foregroundStyle(CMFTheme.ink.opacity(0.7))
             Spacer()
-            if let trailing {
-                Text(trailing)
-                    .font(.system(size: 10, weight: .medium, design: .monospaced))
-                    .foregroundStyle(CMFTheme.muted)
-            }
+            Text(trailing ?? "···")
+                .font(.system(size: 9.5, weight: .medium, design: .monospaced))
+                .foregroundStyle(CMFTheme.muted)
         }
     }
 }
 
-/// Pill segmented control; the selected segment is solid white like the Nothing X mode picker.
+/// Row of square outlined buttons; the selected one is solid white, as on the Aether EQ profile tile.
 struct PillSegments<Value: Hashable>: View {
     let options: [(value: Value, title: String)]
     let selection: Value?
     let onSelect: (Value) -> Void
 
     var body: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: 6) {
             ForEach(options, id: \.value) { option in
                 let selected = option.value == selection
                 Button { onSelect(option.value) } label: {
-                    Text(option.title)
-                        .font(.system(size: 11, weight: .semibold))
+                    Text(option.title.uppercased())
+                        .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                        .tracking(0.6)
                         .lineLimit(1)
-                        .minimumScaleFactor(0.75)
+                        .minimumScaleFactor(0.7)
                         .foregroundStyle(selected ? Color.black : CMFTheme.ink.opacity(0.75))
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 9)
-                        .background(selected ? Color.white : .clear, in: Capsule())
+                        .padding(.vertical, 11)
+                        .background(selected ? Color.white : .clear, in: RoundedRectangle(cornerRadius: 6, style: .continuous))
+                        .overlay(RoundedRectangle(cornerRadius: 6, style: .continuous)
+                            .strokeBorder(selected ? Color.clear : CMFTheme.lineStrong, lineWidth: 1))
                 }
                 .buttonStyle(.plain)
             }
         }
-        .padding(4)
-        .background(CMFTheme.raised, in: Capsule())
+    }
+}
+
+/// Large thin numeral with a small unit and caption, used for headline readouts.
+struct BigFigure: View {
+    let value: String
+    var unit: String?
+    var caption: String?
+    var size: CGFloat = 40
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            HStack(alignment: .firstTextBaseline, spacing: 3) {
+                Text(value).font(.system(size: size, weight: .light)).monospacedDigit()
+                if let unit {
+                    Text(unit).font(.system(size: size * 0.3, weight: .medium, design: .monospaced)).foregroundStyle(CMFTheme.muted)
+                }
+            }
+            if let caption {
+                Text(caption.uppercased())
+                    .font(.system(size: 8.5, weight: .medium, design: .monospaced))
+                    .tracking(0.9)
+                    .foregroundStyle(CMFTheme.muted)
+            }
+        }
+    }
+}
+
+/// Hairline progress bar with a solid fill.
+struct ThinBar: View {
+    let progress: Double
+    var tint: Color = CMFTheme.ink
+
+    var body: some View {
+        GeometryReader { proxy in
+            ZStack(alignment: .leading) {
+                Rectangle().fill(CMFTheme.lineStrong)
+                Rectangle().fill(tint).frame(width: proxy.size.width * max(0, min(1, progress)))
+            }
+        }
+        .frame(height: 2)
     }
 }
 

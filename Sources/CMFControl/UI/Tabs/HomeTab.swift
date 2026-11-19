@@ -11,37 +11,55 @@ struct HomeTab: View {
         }
     }
 
+    /// Product card in the Beoplay style: model top-left, status badge top-right, readouts along the bottom.
     private var hero: some View {
-        ZStack(alignment: .topLeading) {
-            RoundedRectangle(cornerRadius: 26, style: .continuous).fill(CMFTheme.surface)
-            DotGrid().clipShape(RoundedRectangle(cornerRadius: 26, style: .continuous))
-            RadialGradient(colors: [.white.opacity(0.16), .clear], center: .center, startRadius: 0, endRadius: 130)
+        ZStack {
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .fill(LinearGradient(colors: [Color(white: 0.11), Color(white: 0.035)], startPoint: .top, endPoint: .bottom))
+            RadialGradient(colors: [.white.opacity(0.12), .clear], center: .center, startRadius: 0, endRadius: 140)
+                .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
             DeviceArtwork(modelName: manager.displayModelName)
-                .padding(.horizontal, 60)
-                .padding(.vertical, 10)
-            VStack(alignment: .leading, spacing: 8) {
-                StatusPill(text: manager.connectionState.rawValue, active: manager.isConnected)
-                if let error = manager.lastError {
-                    Text(error)
-                        .font(.system(size: 10))
-                        .foregroundStyle(CMFTheme.red)
-                        .lineLimit(2)
-                        .frame(maxWidth: 150, alignment: .leading)
+                .padding(.horizontal, 70)
+                .padding(.top, 34)
+                .padding(.bottom, 44)
+            VStack {
+                HStack(alignment: .top) {
+                    Text(manager.displayModelName)
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(CMFTheme.ink.opacity(0.85))
+                        .lineLimit(1)
+                    Spacer()
+                    outlineBadge(manager.connectionState.rawValue.uppercased())
+                }
+                Spacer()
+                HStack(alignment: .bottom) {
+                    if let text = manager.menuBarBatteryText {
+                        BigFigure(value: text.replacingOccurrences(of: "%", with: ""), unit: text.contains("%") ? "%" : nil,
+                                  caption: "Battery", size: 26)
+                    }
+                    Spacer()
+                    if let error = manager.lastError {
+                        Text(error).font(.system(size: 9)).foregroundStyle(CMFTheme.red).lineLimit(2).frame(maxWidth: 150, alignment: .trailing)
+                    } else {
+                        Text("BLUETOOTH")
+                            .font(.system(size: 9, weight: .medium, design: .monospaced)).tracking(1)
+                            .foregroundStyle(CMFTheme.muted)
+                    }
                 }
             }
-            .padding(14)
-            VStack {
-                Spacer()
-                Text(manager.displayModelName.uppercased())
-                    .font(.system(size: 11, weight: .semibold, design: .monospaced))
-                    .tracking(1.2)
-                    .foregroundStyle(CMFTheme.muted)
-                    .lineLimit(1)
-                    .padding(.bottom, 12)
-            }
-            .frame(maxWidth: .infinity)
+            .padding(16)
         }
-        .frame(height: 230)
+        .overlay(RoundedRectangle(cornerRadius: 22, style: .continuous).strokeBorder(CMFTheme.line, lineWidth: 1))
+        .frame(height: 250)
+    }
+
+    private func outlineBadge(_ text: String) -> some View {
+        HStack(spacing: 5) {
+            Circle().fill(manager.isConnected ? CMFTheme.red : CMFTheme.muted).frame(width: 5, height: 5)
+            Text(text).font(.system(size: 8.5, weight: .semibold, design: .monospaced)).tracking(0.8)
+        }
+        .padding(.horizontal, 9).padding(.vertical, 5)
+        .overlay(Capsule().strokeBorder(CMFTheme.lineStrong, lineWidth: 1))
     }
 
     private var battery: some View {

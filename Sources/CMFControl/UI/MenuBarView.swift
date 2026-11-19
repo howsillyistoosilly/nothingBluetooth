@@ -6,6 +6,15 @@ private enum AppTab: String, CaseIterable, Identifiable {
     case controls = "CONTROL"
     case device = "DEVICE"
     var id: String { rawValue }
+
+    var symbol: String {
+        switch self {
+        case .home: "house"
+        case .sound: "slider.vertical.3"
+        case .controls: "hand.tap"
+        case .device: "square.grid.2x2"
+        }
+    }
 }
 
 struct MenuBarView: View {
@@ -47,7 +56,7 @@ struct MenuBarView: View {
 
     private var header: some View {
         HStack(alignment: .center) {
-            DotText(text: "NOTHING", dot: 2.4, gap: 1.1)
+            DotText(text: "NOTHING", dot: 1.8, gap: 0.9)
             Spacer()
             Button {
                 openWindow(id: "dashboard")
@@ -66,27 +75,34 @@ struct MenuBarView: View {
         .padding(.bottom, 14)
     }
 
+    /// Floating pill with icon buttons and a small accent underline, as in the Beoplay reference.
     private var tabBar: some View {
         HStack(spacing: 0) {
             ForEach(AppTab.allCases) { item in
                 Button { tab = item } label: {
-                    VStack(spacing: 7) {
-                        DotText(text: item.rawValue, dot: 1.4, gap: 0.7,
-                                color: tab == item ? CMFTheme.ink : CMFTheme.muted)
-                        Circle()
+                    VStack(spacing: 4) {
+                        Image(systemName: item.symbol)
+                            .font(.system(size: 15, weight: .regular))
+                            .foregroundStyle(tab == item ? CMFTheme.ink : CMFTheme.muted)
+                        Capsule()
                             .fill(tab == item ? CMFTheme.red : .clear)
-                            .frame(width: 4, height: 4)
+                            .frame(width: 12, height: 2)
                     }
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
+                    .padding(.vertical, 11)
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .help(item.rawValue.capitalized)
                 .accessibilityLabel(item.rawValue.capitalized)
                 .accessibilityAddTraits(tab == item ? .isSelected : [])
             }
         }
-        .background(CMFTheme.surface)
-        .overlay(alignment: .top) { Rectangle().fill(CMFTheme.line).frame(height: 1) }
+        .background(Color(white: 0.07), in: Capsule())
+        .overlay(Capsule().strokeBorder(CMFTheme.lineStrong, lineWidth: 1))
+        .shadow(color: .black.opacity(0.6), radius: 12, y: 6)
+        .padding(.horizontal, 28)
+        .padding(.bottom, 16)
+        .padding(.top, 8)
     }
 }

@@ -9,7 +9,9 @@ enum CMFTheme {
     static let muted = Color(white: 0.5)
     static let dim = Color(white: 0.22)
     static let red = Color(red: 0.843, green: 0.098, blue: 0.129)
+    static let tile = Color(white: 0.05)
     static let line = Color.white.opacity(0.1)
+    static let lineStrong = Color.white.opacity(0.22)
 }
 
 /// 5x7 dot-matrix glyphs, drawn locally so the app needs no bundled font.
