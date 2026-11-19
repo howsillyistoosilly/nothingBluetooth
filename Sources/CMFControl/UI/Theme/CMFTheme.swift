@@ -3,8 +3,8 @@ import SwiftUI
 /// Nothing-style palette: true black, flat grey cards, white ink and a single red accent.
 enum CMFTheme {
     static let background = Color.black
-    static let surface = Color(white: 0.085)
-    static let raised = Color(white: 0.135)
+    static let surface = Color.white.opacity(0.06)
+    static let raised = Color.white.opacity(0.10)
     static let ink = Color.white
     static let muted = Color(white: 0.5)
     static let dim = Color(white: 0.22)
@@ -12,6 +12,45 @@ enum CMFTheme {
     static let tile = Color(white: 0.05)
     static let line = Color.white.opacity(0.1)
     static let lineStrong = Color.white.opacity(0.22)
+}
+
+extension View {
+    /// Liquid Glass on macOS 26 and later; a frosted material with a soft rim light on older systems.
+    @ViewBuilder func glass<S: InsettableShape>(in shape: S, tint: Color? = nil, interactive: Bool = false) -> some View {
+        if #available(macOS 26.0, *) {
+            let base: Glass = tint.map { Glass.regular.tint($0) } ?? .regular
+            self.glassEffect(interactive ? base.interactive() : base, in: shape)
+        } else {
+            self
+                .background(.ultraThinMaterial, in: shape)
+                .overlay(shape.strokeBorder(LinearGradient(colors: [.white.opacity(0.30), .white.opacity(0.04)],
+                                                           startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1))
+        }
+    }
+
+    func glass(radius: CGFloat = 22, tint: Color? = nil, interactive: Bool = false) -> some View {
+        glass(in: RoundedRectangle(cornerRadius: radius, style: .continuous), tint: tint, interactive: interactive)
+    }
+}
+
+/// Pure black with one faint, slow red glow and a deep-red vignette, so glass surfaces have something to refract.
+struct AmbientBackground: View {
+    @State private var drift = false
+
+    var body: some View {
+        ZStack {
+            Color.black
+            LinearGradient(colors: [CMFTheme.red.opacity(0.10), .clear, .clear],
+                           startPoint: .topTrailing, endPoint: .bottomLeading)
+            Circle().fill(CMFTheme.red.opacity(0.28)).frame(width: 340)
+                .blur(radius: 110)
+                .offset(x: drift ? 170 : 120, y: drift ? -240 : -200)
+        }
+        .animation(.easeInOut(duration: 12).repeatForever(autoreverses: true), value: drift)
+        .onAppear { drift = true }
+        .ignoresSafeArea()
+        .allowsHitTesting(false)
+    }
 }
 
 /// 5x7 dot-matrix glyphs, drawn locally so the app needs no bundled font.

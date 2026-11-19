@@ -88,9 +88,8 @@ struct EmptyStateView: View {
 
     private var radar: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 26, style: .continuous).fill(CMFTheme.surface)
             ScanlineField(active: busy)
-                .clipShape(RoundedRectangle(cornerRadius: 26, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
             VStack(spacing: 14) {
                 DotText(text: busy ? (manager.connectionState == .connecting ? "CONNECTING" : "SCANNING") : "NOTHING HERE",
                         dot: 2.6, gap: 1.2)
@@ -107,6 +106,7 @@ struct EmptyStateView: View {
             .padding(.horizontal, 16)
         }
         .frame(height: 250)
+        .glass(radius: 30)
     }
 
     @ViewBuilder private var deviceLists: some View {

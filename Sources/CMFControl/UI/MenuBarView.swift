@@ -20,6 +20,7 @@ private enum AppTab: String, CaseIterable, Identifiable {
 struct MenuBarView: View {
     @Bindable var manager: CMFBluetoothManager
     @State private var tab: AppTab
+    @Namespace private var tabSlide
     @Environment(\.openWindow) private var openWindow
 
     init(manager: CMFBluetoothManager, initialTab: Int = 0) {
@@ -40,7 +41,7 @@ struct MenuBarView: View {
             if manager.isConnected { tabBar }
         }
         .frame(width: 400, height: 660)
-        .background(CMFTheme.background)
+        .background(AmbientBackground())
         .foregroundStyle(CMFTheme.ink)
         .preferredColorScheme(.dark)
     }
@@ -75,22 +76,26 @@ struct MenuBarView: View {
         .padding(.bottom, 14)
     }
 
-    /// Floating pill with icon buttons and a small accent underline, as in the Beoplay reference.
+    /// Floating glass pill with icon buttons; a soft lozenge slides under the active one.
     private var tabBar: some View {
         HStack(spacing: 0) {
             ForEach(AppTab.allCases) { item in
-                Button { tab = item } label: {
-                    VStack(spacing: 4) {
-                        Image(systemName: item.symbol)
-                            .font(.system(size: 15, weight: .regular))
-                            .foregroundStyle(tab == item ? CMFTheme.ink : CMFTheme.muted)
-                        Capsule()
-                            .fill(tab == item ? CMFTheme.red : .clear)
-                            .frame(width: 12, height: 2)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 11)
-                    .contentShape(Rectangle())
+                Button { withAnimation(.smooth(duration: 0.3)) { tab = item } } label: {
+                    Image(systemName: item.symbol)
+                        .font(.system(size: 15, weight: tab == item ? .semibold : .regular))
+                        .foregroundStyle(tab == item ? CMFTheme.ink : CMFTheme.ink.opacity(0.55))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background {
+                            if tab == item {
+                                Capsule().fill(Color.white.opacity(0.16))
+                                    .overlay(alignment: .bottom) {
+                                        Circle().fill(CMFTheme.red).frame(width: 4, height: 4).offset(y: -3)
+                                    }
+                                    .matchedGeometryEffect(id: "tab", in: tabSlide)
+                            }
+                        }
+                        .contentShape(Capsule())
                 }
                 .buttonStyle(.plain)
                 .help(item.rawValue.capitalized)
@@ -98,9 +103,9 @@ struct MenuBarView: View {
                 .accessibilityAddTraits(tab == item ? .isSelected : [])
             }
         }
-        .background(Color(white: 0.07), in: Capsule())
-        .overlay(Capsule().strokeBorder(CMFTheme.lineStrong, lineWidth: 1))
-        .padding(.horizontal, 28)
+        .padding(4)
+        .glass(in: Capsule(), interactive: true)
+        .padding(.horizontal, 26)
         .padding(.bottom, 16)
         .padding(.top, 8)
     }

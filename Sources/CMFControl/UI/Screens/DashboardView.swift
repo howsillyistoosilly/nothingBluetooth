@@ -27,7 +27,6 @@ struct DashboardView: View {
     var body: some View {
         HStack(spacing: 0) {
             rail
-            Rectangle().fill(CMFTheme.line).frame(width: 1)
             ScrollView {
                 if manager.isConnected {
                     VStack(spacing: 14) {
@@ -44,7 +43,7 @@ struct DashboardView: View {
             }
         }
         .frame(minWidth: 1040, minHeight: 700)
-        .background(CMFTheme.background)
+        .background(AmbientBackground())
         .foregroundStyle(CMFTheme.ink)
         .preferredColorScheme(.dark)
         .onAppear {
@@ -84,19 +83,20 @@ struct DashboardView: View {
             Circle().fill(manager.isConnected ? CMFTheme.red : CMFTheme.dim).frame(width: 7, height: 7).padding(.bottom, 24)
         }
         .frame(width: 64)
-        .background(Color(white: 0.04))
+        .glass(radius: 32)
+        .padding(.leading, 14)
+        .padding(.vertical, 14)
     }
 
     // MARK: Hero
 
     private var hero: some View {
         ZStack(alignment: .leading) {
-            RoundedRectangle(cornerRadius: 18, style: .continuous).fill(Color(white: 0.04))
-            DotGrid(pitch: 14, dot: 1.4, color: .white.opacity(0.06))
-                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+            DotGrid(pitch: 14, dot: 1.4, color: .white.opacity(0.07))
+                .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
             HStack {
                 Spacer()
-                DeviceArtwork(modelName: manager.displayModelName)
+                DeviceArtwork(modelName: manager.artworkModelName)
                     .frame(maxWidth: 360)
                     .padding(.vertical, 12)
                     .padding(.trailing, 40)
@@ -132,8 +132,8 @@ struct DashboardView: View {
             }
             .padding(18)
         }
-        .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).strokeBorder(CMFTheme.line, lineWidth: 1))
         .frame(height: 230)
+        .glass(radius: 30)
     }
 
     private func chip(_ text: String, solid: Bool) -> some View {
@@ -141,8 +141,7 @@ struct DashboardView: View {
             .font(.system(size: 8.5, weight: .bold, design: .monospaced)).tracking(0.8)
             .foregroundStyle(solid ? Color.black : CMFTheme.ink.opacity(0.8))
             .padding(.horizontal, 8).padding(.vertical, 4)
-            .background(solid ? CMFTheme.ink : .clear, in: Capsule())
-            .overlay(Capsule().strokeBorder(solid ? Color.clear : CMFTheme.lineStrong, lineWidth: 1))
+            .background(solid ? CMFTheme.ink : Color.white.opacity(0.10), in: Capsule())
     }
 
     // MARK: Pages

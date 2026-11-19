@@ -207,7 +207,15 @@ final class CMFBluetoothManager: NSObject {
         return battery == nil ? "Waiting for battery report" : "Battery status received"
     }
 
+    /// Name used to pick the product photo: the Bluetooth name macOS shows (for example "CMF Buds 2a")
+    /// is tried first, because the model string a device reports is not always a readable name.
+    var artworkModelName: String {
+        [deviceName, deviceModel, displayModelName].compactMap { $0 }
+            .first { ProductCatalog.assetName(for: $0) != nil } ?? displayModelName
+    }
+
     var displayModelName: String {
+        if ProductCatalog.assetName(for: deviceName) != nil, !isMockMode { return deviceName }
         if let deviceModel {
             let model = deviceModel.trimmingCharacters(in: .whitespacesAndNewlines)
             if !model.isEmpty, model.count < 48 { return model }

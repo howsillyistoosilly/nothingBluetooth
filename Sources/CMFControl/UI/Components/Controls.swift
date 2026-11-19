@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Outlined tile with a hairline border, the container used across the app.
+/// Glass tile, the container used across the app.
 struct NothingCard<Content: View>: View {
     var padding: CGFloat = 16
     /// Stretch to the row height so tiles in a grid line up.
@@ -11,8 +11,7 @@ struct NothingCard<Content: View>: View {
         content
             .padding(padding)
             .frame(maxWidth: .infinity, maxHeight: fillsHeight ? .infinity : nil, alignment: .topLeading)
-            .background(CMFTheme.tile, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(CMFTheme.line, lineWidth: 1))
+            .glass(radius: 24)
     }
 }
 
@@ -41,39 +40,47 @@ struct SectionLabel: View {
     }
 }
 
-/// Segmented control in the macOS style: a recessed track with a raised white selection.
+/// Segmented control on a glass track; the white selection slides between segments.
 struct PillSegments<Value: Hashable>: View {
     let options: [(value: Value, title: String)]
     let selection: Value?
     let onSelect: (Value) -> Void
     @State private var hovered: Value?
+    @Namespace private var slide
 
     var body: some View {
         HStack(spacing: 2) {
             ForEach(options, id: \.value) { option in
                 let selected = option.value == selection
-                Button { onSelect(option.value) } label: {
+                Button {
+                    withAnimation(.smooth(duration: 0.28)) { onSelect(option.value) }
+                } label: {
                     Text(option.title)
                         .font(.system(size: 12, weight: .medium))
                         .lineLimit(1)
                         .minimumScaleFactor(0.75)
-                        .foregroundStyle(selected ? Color.black : CMFTheme.ink.opacity(0.85))
+                        .foregroundStyle(selected ? Color.black : CMFTheme.ink.opacity(0.88))
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 6)
+                        .padding(.vertical, 7)
                         .background {
-                            RoundedRectangle(cornerRadius: 6, style: .continuous)
-                                .fill(selected ? Color.white : (hovered == option.value ? Color.white.opacity(0.08) : .clear))
-                                .shadow(color: .black.opacity(selected ? 0.35 : 0), radius: 1.5, y: 1)
+                            if selected {
+                                Capsule().fill(Color.white.opacity(0.94))
+                                    .shadow(color: .black.opacity(0.3), radius: 4, y: 1)
+                                    .matchedGeometryEffect(id: "selection", in: slide)
+                            } else if hovered == option.value {
+                                Capsule().fill(Color.white.opacity(0.10))
+                            }
                         }
-                        .contentShape(Rectangle())
+                        .contentShape(Capsule())
                 }
                 .buttonStyle(.plain)
                 .onHover { hovering in hovered = hovering ? option.value : (hovered == option.value ? nil : hovered) }
                 .accessibilityAddTraits(selected ? .isSelected : [])
             }
         }
-        .padding(2)
-        .background(Color.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .padding(3)
+        .background(Color.black.opacity(0.28), in: Capsule())
+        .overlay(Capsule().strokeBorder(Color.white.opacity(0.10), lineWidth: 1))
     }
 }
 

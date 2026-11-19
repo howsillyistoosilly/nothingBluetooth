@@ -14,11 +14,9 @@ struct HomeTab: View {
     /// Product card in the Beoplay style: model top-left, status badge top-right, readouts along the bottom.
     private var hero: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .fill(LinearGradient(colors: [Color(white: 0.11), Color(white: 0.035)], startPoint: .top, endPoint: .bottom))
-            RadialGradient(colors: [.white.opacity(0.12), .clear], center: .center, startRadius: 0, endRadius: 140)
-                .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
-            DeviceArtwork(modelName: manager.displayModelName)
+            RadialGradient(colors: [.white.opacity(0.18), .clear], center: .center, startRadius: 0, endRadius: 150)
+                .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
+            DeviceArtwork(modelName: manager.artworkModelName)
                 .padding(.horizontal, 70)
                 .padding(.top, 34)
                 .padding(.bottom, 44)
@@ -49,8 +47,8 @@ struct HomeTab: View {
             }
             .padding(16)
         }
-        .overlay(RoundedRectangle(cornerRadius: 22, style: .continuous).strokeBorder(CMFTheme.line, lineWidth: 1))
         .frame(height: 250)
+        .glass(radius: 30)
     }
 
     private func outlineBadge(_ text: String) -> some View {
@@ -59,7 +57,8 @@ struct HomeTab: View {
             Text(text).font(.system(size: 8.5, weight: .semibold, design: .monospaced)).tracking(0.8)
         }
         .padding(.horizontal, 9).padding(.vertical, 5)
-        .overlay(Capsule().strokeBorder(CMFTheme.lineStrong, lineWidth: 1))
+        .background(Color.white.opacity(0.08), in: Capsule())
+        .overlay(Capsule().strokeBorder(Color.white.opacity(0.18), lineWidth: 1))
     }
 
     private var battery: some View {
