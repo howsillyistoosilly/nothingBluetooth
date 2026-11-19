@@ -42,7 +42,8 @@ struct DashboardView: View {
                 }
                 .padding(.leading, 96)
                 .padding(.trailing, 24)
-                .padding(.vertical, 22)
+                .padding(.top, 30)
+                .padding(.bottom, 22)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 .transition(.opacity.combined(with: .scale(scale: 0.95)))
                 rail.transition(.opacity.combined(with: .move(edge: .leading)))
@@ -56,6 +57,7 @@ struct DashboardView: View {
         .clipped()
         .frame(minWidth: 1000, minHeight: 720)
         .background(AmbientBackground(revealed: manager.isConnected))
+        .background(WindowConfigurator())
         .foregroundStyle(CMFTheme.ink)
         .preferredColorScheme(.dark)
         .onAppear {
@@ -96,7 +98,8 @@ struct DashboardView: View {
         .frame(width: 64)
         .glass(radius: 32)
         .padding(.leading, 10)
-        .padding(.vertical, 12)
+        .padding(.top, 42)
+        .padding(.bottom, 12)
     }
 
     // MARK: Hero
@@ -396,5 +399,29 @@ struct WeightedRow: Layout {
             subview.place(at: CGPoint(x: x, y: bounds.minY), anchor: .topLeading, proposal: ProposedViewSize(width: width, height: height))
             x += width + spacing
         }
+    }
+}
+
+
+/// Removes the grey title bar: the window's top is transparent so the content runs to the edge, with the
+/// traffic-light buttons floating over it, and the window can be dragged from any empty area.
+struct WindowConfigurator: NSViewRepresentable {
+    func makeNSView(context: Context) -> NSView {
+        let view = NSView()
+        DispatchQueue.main.async { Self.configure(view.window) }
+        return view
+    }
+
+    func updateNSView(_ view: NSView, context: Context) {
+        DispatchQueue.main.async { Self.configure(view.window) }
+    }
+
+    private static func configure(_ window: NSWindow?) {
+        guard let window else { return }
+        window.titlebarAppearsTransparent = true
+        window.titleVisibility = .hidden
+        window.styleMask.insert(.fullSizeContentView)
+        window.isMovableByWindowBackground = true
+        window.backgroundColor = .black
     }
 }
