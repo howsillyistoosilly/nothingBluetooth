@@ -39,6 +39,10 @@ struct AmbientBackground: View {
     var tall = false
     /// Black until something connects, then the artwork scales down into place while fading in.
     var revealed = true
+    /// Slowly pans and zooms the artwork. Only a transform on one image, so it stays cheap.
+    var animated = false
+
+    @State private var drift = false
 
     var body: some View {
         ZStack {
@@ -47,14 +51,20 @@ struct AmbientBackground: View {
                 Image(nsImage: image)
                     .resizable()
                     .scaledToFill()
+                    // The drift: overscanned a little so panning never shows an edge.
+                    .scaleEffect(animated ? (drift ? 1.20 : 1.08) : 1)
+                    .offset(x: animated ? (drift ? -18 : 18) : 0, y: animated ? (drift ? 14 : -14) : 0)
+                    .animation(animated ? .easeInOut(duration: 11).repeatForever(autoreverses: true) : nil, value: drift)
+                    // The reveal when something connects.
                     .scaleEffect(revealed ? 1 : 1.22)
                     .opacity(revealed ? 1 : 0)
+                    .animation(.easeOut(duration: 1.2), value: revealed)
             }
         }
-        .animation(.easeOut(duration: 1.2), value: revealed)
         .clipped()
         .ignoresSafeArea()
         .allowsHitTesting(false)
+        .onAppear { if animated { drift = true } }
     }
 }
 

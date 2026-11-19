@@ -51,7 +51,7 @@ struct MenuBarView: View {
         .animation(.smooth(duration: 0.8), value: manager.isConnected)
         .frame(width: 400, height: 660)
         .clipped()
-        .background(AmbientBackground(tall: true, revealed: manager.isConnected))
+        .background(AmbientBackground(tall: true, revealed: manager.isConnected, animated: true))
         .foregroundStyle(CMFTheme.ink)
         .preferredColorScheme(.dark)
     }
