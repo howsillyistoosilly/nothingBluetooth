@@ -22,7 +22,12 @@ private enum DashboardPage: String, CaseIterable, Identifiable {
 /// Appears in the Dock while open.
 struct DashboardView: View {
     @Bindable var manager: CMFBluetoothManager
-    @State private var page: DashboardPage = .overview
+    @State private var page: DashboardPage
+
+    init(manager: CMFBluetoothManager, initialPage: Int = 0) {
+        self.manager = manager
+        _page = State(initialValue: DashboardPage.allCases[initialPage])
+    }
 
     var body: some View {
         // The rail floats over the content (rather than sitting beside it) so the content can be pinned to the
@@ -59,7 +64,6 @@ struct DashboardView: View {
             NSApp.setActivationPolicy(.regular)
             NSApp.activate(ignoringOtherApps: true)
         }
-        .onDisappear { NSApp.setActivationPolicy(.accessory) }
     }
 
     // MARK: Rail

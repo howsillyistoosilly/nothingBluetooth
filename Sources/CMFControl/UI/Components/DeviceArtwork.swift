@@ -58,9 +58,15 @@ enum ProductCatalog {
         #if SWIFT_PACKAGE
         Bundle.module.image(forResource: NSImage.Name(asset))
         #else
-        NSImage(named: NSImage.Name(asset))
+        NSImage(named: NSImage.Name(asset)) ?? siblingBundle?.image(forResource: NSImage.Name(asset))
         #endif
     }
+
+    /// Resource bundle sitting beside the executable, for runs that are neither the package nor an app bundle.
+    private static let siblingBundle: Bundle? = {
+        let directory = Bundle.main.executableURL?.deletingLastPathComponent().path ?? ""
+        return Bundle(path: directory + "/CMFControl_CMFControl.bundle")
+    }()
 }
 
 /// Product photo for the connected model, falling back to local vector artwork.

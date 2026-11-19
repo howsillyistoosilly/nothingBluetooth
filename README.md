@@ -26,6 +26,28 @@ Features depend on the model. Anything the device does not report is hidden or d
 
 CMF Buds 2a. Other models use the same protocol family but are untested here; please open an issue with a packet log if something does not work. See [docs/NOTHING-PROTOCOL.md](docs/NOTHING-PROTOCOL.md) for the frame format, command table and what is and is not verified.
 
+## Screenshots
+
+Shown in demo mode with a simulated CMF Headphones Pro.
+
+**Dashboard**
+
+![Dashboard overview](docs/screenshots/dash-overview.png)
+
+| Sound | Control |
+| --- | --- |
+| ![Sound page with the custom EQ graph](docs/screenshots/dash-sound.png) | ![Control page with gestures](docs/screenshots/dash-control.png) |
+
+**Menu bar panel**
+
+| Home | Sound | Control | Device |
+| --- | --- | --- | --- |
+| ![Home](docs/screenshots/pop-home.png) | ![Sound](docs/screenshots/pop-sound.png) | ![Control](docs/screenshots/pop-control.png) | ![Device](docs/screenshots/pop-device.png) |
+
+**With nothing connected**
+
+![Scanner](docs/screenshots/scanner.png)
+
 ## Requirements
 
 - A Mac running **macOS 14 or later**
