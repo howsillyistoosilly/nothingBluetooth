@@ -1,3 +1,5 @@
+<p align="center"><img src="Logo/NothingController-banner.png" alt="NothingController" width="100%"></p>
+
 # NothingController
 
 A native macOS menu bar app for **Nothing** and **CMF by Nothing** earbuds and headphones, styled after the Nothing X app: true black, flat grey cards, a dot-matrix typeface and one red accent. SwiftUI and IOBluetooth, macOS 14+. Unofficial and not affiliated with Nothing.
@@ -15,7 +17,7 @@ A native macOS menu bar app for **Nothing** and **CMF by Nothing** earbuds and h
 - **Find my buds** – ring the left, right or both earbuds.
 - **My devices** – switch between paired Nothing and CMF devices, or pair a new one.
 - **Device info** – name, model, firmware, serial number and MAC address, plus a raw packet inspector.
-- **Scanning empty state** – with nothing connected you get a scanline radar and a bad joke.
+- **Scanning empty state** – with nothing connected the whole window is a circular dot radar on black and a bad joke; when a device connects the interface and background reveal with a scale and fade.
 - **Demo mode** – simulate a headset without hardware.
 
 Features depend on the model. Anything the device does not report is hidden or disabled.
@@ -81,6 +83,7 @@ Open the Device tab and turn on **Demo mode**, or choose "Try demo mode" on the 
 | `Sources/CMFControl/Resources/Assets.xcassets` | Product photos and the pre-rendered backgrounds |
 | `Wallpaper` | `make-wallpaper.swift` and the 3840 × 2160 red-and-black wallpaper (`NothingController-wallpaper.png`) |
 | `Icon` | `make-icon.swift` and the app icon |
+| `Logo` | `make-logo.swift`, the README banner and transparent white / black wordmarks |
 
 ## Credits
 

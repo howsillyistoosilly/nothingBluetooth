@@ -37,6 +37,8 @@ extension View {
 /// instead of being drawn live, which keeps the windows light.
 struct AmbientBackground: View {
     var tall = false
+    /// Black until something connects, then the artwork scales down into place while fading in.
+    var revealed = true
 
     var body: some View {
         ZStack {
@@ -45,8 +47,11 @@ struct AmbientBackground: View {
                 Image(nsImage: image)
                     .resizable()
                     .scaledToFill()
+                    .scaleEffect(revealed ? 1 : 1.22)
+                    .opacity(revealed ? 1 : 0)
             }
         }
+        .animation(.easeOut(duration: 1.2), value: revealed)
         .clipped()
         .ignoresSafeArea()
         .allowsHitTesting(false)

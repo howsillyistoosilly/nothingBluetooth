@@ -29,21 +29,29 @@ struct MenuBarView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            header
-            ScrollView(showsIndicators: false) {
-                Group {
-                    if manager.isConnected { content } else { EmptyStateView(manager: manager) }
+        ZStack {
+            if manager.isConnected {
+                VStack(spacing: 0) {
+                    header
+                    ScrollView(showsIndicators: false) {
+                        content
+                            .padding(.horizontal, 16)
+                            .padding(.bottom, 16)
+                    }
+                    .scrollBounceBehavior(.basedOnSize)
+                    tabBar
                 }
-                .padding(.horizontal, 16)
-                .padding(.bottom, 16)
+                .transition(.opacity.combined(with: .scale(scale: 0.93)))
+            } else {
+                // Until something connects the app is just the radar on black.
+                EmptyStateView(manager: manager)
+                    .transition(.opacity.combined(with: .scale(scale: 1.06)))
             }
-            .scrollBounceBehavior(.basedOnSize)
-            if manager.isConnected { tabBar }
         }
+        .animation(.smooth(duration: 0.8), value: manager.isConnected)
         .frame(width: 400, height: 660)
         .clipped()
-        .background(AmbientBackground(tall: true))
+        .background(AmbientBackground(tall: true, revealed: manager.isConnected))
         .foregroundStyle(CMFTheme.ink)
         .preferredColorScheme(.dark)
     }

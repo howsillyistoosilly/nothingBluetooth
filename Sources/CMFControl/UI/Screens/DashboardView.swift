@@ -28,8 +28,8 @@ struct DashboardView: View {
         // The rail floats over the content (rather than sitting beside it) so the content can be pinned to the
         // window width; the left inset keeps it clear of the rail.
         ZStack(alignment: .leading) {
-            ScrollView {
-                if manager.isConnected {
+            if manager.isConnected {
+                ScrollView {
                     VStack(spacing: 14) {
                         if page == .overview { hero }
                         pageContent
@@ -39,20 +39,20 @@ struct DashboardView: View {
                     .padding(.vertical, 22)
                     // Pin the content to the window width so the grid can never size itself wider than the window.
                     .containerRelativeFrame(.horizontal)
-                } else {
-                    EmptyStateView(manager: manager)
-                        .frame(maxWidth: 560)
-                        .padding(28)
-                        .padding(.leading, 74)
-                        .frame(maxWidth: .infinity)
                 }
+                .scrollBounceBehavior(.basedOnSize)
+                .transition(.opacity.combined(with: .scale(scale: 0.95)))
+                rail.transition(.opacity.combined(with: .move(edge: .leading)))
+            } else {
+                // Until something connects the window is just the radar on black.
+                EmptyStateView(manager: manager)
+                    .transition(.opacity.combined(with: .scale(scale: 1.05)))
             }
-            .scrollBounceBehavior(.basedOnSize)
-            rail
         }
+        .animation(.smooth(duration: 0.8), value: manager.isConnected)
         .clipped()
         .frame(minWidth: 1040, minHeight: 700)
-        .background(AmbientBackground())
+        .background(AmbientBackground(revealed: manager.isConnected))
         .foregroundStyle(CMFTheme.ink)
         .preferredColorScheme(.dark)
         .onAppear {
