@@ -16,6 +16,7 @@ extension EQPreset {
 /// Dot-matrix frequency response curve across 20 Hz - 20 kHz.
 struct EQCurve: View {
     let bands: [Int]
+    var height: CGFloat = 110
     private let columns = 36
     private let limit = 6.0
 
@@ -44,7 +45,7 @@ struct EQCurve: View {
                 }
             }
         }
-        .frame(height: 110)
+        .frame(height: height)
         .animation(.snappy(duration: 0.25), value: bands)
         .accessibilityLabel("Equaliser curve")
         .accessibilityValue("Bass \(bands[0]), mid \(bands[1]), treble \(bands[2]) decibels")
@@ -125,7 +126,7 @@ enum EQSpline {
     }
 }
 
-/// Interactive equaliser graph: three draggable nodes joined by a glowing curve that sits behind the dot matrix.
+/// Interactive equaliser graph: three draggable nodes joined by a plain line over the dot matrix.
 /// Dragging a node changes that band's gain from -6 to +6 dB.
 struct EQGraph: View {
     let bands: [Int]
@@ -189,39 +190,14 @@ struct EQGraph: View {
         }
     }
 
-    /// The connecting light: a soft red wash between the curve and the zero line, beams down from each node,
-    /// and a glowing line, all drawn behind the dots.
+    /// A plain line through the three nodes, drawn behind the dots.
     private func glow(in size: CGSize) -> some View {
         let points = curvePoints(in: size)
-        let mid = size.height / 2
-        let line = Path { path in
+        return Path { path in
             path.move(to: points[0])
             points.dropFirst().forEach { path.addLine(to: $0) }
         }
-        let wash = Path { path in
-            path.move(to: CGPoint(x: 0, y: mid))
-            points.forEach { path.addLine(to: $0) }
-            path.addLine(to: CGPoint(x: size.width, y: mid))
-            path.closeSubpath()
-        }
-        return ZStack {
-            wash.fill(LinearGradient(colors: [CMFTheme.red.opacity(0.42), CMFTheme.red.opacity(0.05)], startPoint: .top, endPoint: .bottom))
-                .blur(radius: 14)
-            ForEach(0..<3, id: \.self) { index in
-                let x = CGFloat(EQSpline.positions[index]) * size.width
-                let nodeY = y(forGain: Double(bands[index]), height: size.height)
-                Path { path in
-                    path.move(to: CGPoint(x: x, y: mid))
-                    path.addLine(to: CGPoint(x: x, y: nodeY))
-                }
-                .stroke(LinearGradient(colors: [CMFTheme.red.opacity(0.9), CMFTheme.red.opacity(0.1)],
-                                       startPoint: .init(x: 0, y: nodeY < mid ? 0 : 1), endPoint: .init(x: 0, y: nodeY < mid ? 1 : 0)),
-                        lineWidth: 6)
-                .blur(radius: 8)
-            }
-            line.stroke(CMFTheme.red, style: StrokeStyle(lineWidth: 7, lineCap: .round, lineJoin: .round)).blur(radius: 9)
-            line.stroke(Color.white.opacity(0.85), style: StrokeStyle(lineWidth: 1.2, lineCap: .round, lineJoin: .round))
-        }
+        .stroke(Color.white.opacity(0.9), style: StrokeStyle(lineWidth: 1.5, lineCap: .round, lineJoin: .round))
         .animation(.smooth(duration: 0.2), value: bands)
     }
 
@@ -252,18 +228,13 @@ struct EQGraph: View {
                 let x = CGFloat(EQSpline.positions[index]) * size.width
                 let nodeY = y(forGain: Double(bands[index]), height: size.height)
                 let isActive = active == index
-                ZStack {
-                    Circle().fill(CMFTheme.red.opacity(0.35)).frame(width: isActive ? 38 : 30, height: isActive ? 38 : 30).blur(radius: 6)
-                    Circle().fill(Color.white).frame(width: isActive ? 17 : 14, height: isActive ? 17 : 14)
-                    Circle().strokeBorder(CMFTheme.red, lineWidth: 3).frame(width: isActive ? 25 : 21, height: isActive ? 25 : 21)
-                }
-                .position(x: x, y: nodeY)
+                Circle().fill(Color.white).frame(width: isActive ? 11 : 9, height: isActive ? 11 : 9)
+                    .overlay(Circle().strokeBorder(CMFTheme.red, lineWidth: 2).frame(width: isActive ? 17 : 14, height: isActive ? 17 : 14))
+                    .position(x: x, y: nodeY)
                 Text("\(names[index]) \(bands[index] > 0 ? "+" : "")\(bands[index]) dB")
-                    .font(.system(size: 9.5, weight: .semibold, design: .monospaced))
-                    .foregroundStyle(CMFTheme.ink)
-                    .padding(.horizontal, 7).padding(.vertical, 3)
-                    .background(Color.black.opacity(0.55), in: Capsule())
-                    .position(x: x, y: nodeY + (bands[index] >= 0 ? 24 : -24))
+                    .font(.system(size: 9, weight: .semibold, design: .monospaced))
+                    .foregroundStyle(CMFTheme.muted)
+                    .position(x: x, y: nodeY + (bands[index] >= 0 ? 18 : -18))
             }
         }
         .animation(.smooth(duration: 0.15), value: active)

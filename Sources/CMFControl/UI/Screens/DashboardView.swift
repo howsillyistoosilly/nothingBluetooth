@@ -18,7 +18,7 @@ private enum DashboardPage: String, CaseIterable, Identifiable {
     }
 }
 
-/// Full-size window: a slim rail on the left and a bento grid of tiles.
+/// Full-size window: a slim rail on the left, the device on top, then a bento grid of tiles.
 /// Appears in the Dock while open.
 struct DashboardView: View {
     @Bindable var manager: CMFBluetoothManager
@@ -30,12 +30,13 @@ struct DashboardView: View {
         ZStack(alignment: .leading) {
             ScrollView {
                 if manager.isConnected {
-                    VStack(spacing: 12) {
+                    VStack(spacing: 14) {
+                        hero
                         pageContent
                     }
-                    .padding(.leading, 84)
-                    .padding(.trailing, 12)
-                    .padding(.vertical, 12)
+                    .padding(.leading, 96)
+                    .padding(.trailing, 24)
+                    .padding(.vertical, 22)
                     // Pin the content to the window width so the grid can never size itself wider than the window.
                     .containerRelativeFrame(.horizontal)
                 } else {
@@ -96,6 +97,68 @@ struct DashboardView: View {
         .padding(.vertical, 12)
     }
 
+    // MARK: Hero
+
+    private var hero: some View {
+        ZStack(alignment: .leading) {
+            DotGrid(pitch: 14, dot: 1.4, color: .white.opacity(0.07))
+                .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
+            HStack {
+                Spacer()
+                DeviceArtwork(modelName: manager.artworkModelName)
+                    .frame(maxWidth: 360)
+                    .padding(.vertical, 12)
+                    .padding(.trailing, 40)
+                    .mask(LinearGradient(stops: [.init(color: .clear, location: 0), .init(color: .black, location: 0.35)],
+                                         startPoint: .leading, endPoint: .trailing))
+            }
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(spacing: 6) {
+                    chip(manager.connectionState.rawValue.uppercased(), solid: true)
+                    chip(manager.isOverEar ? "HEADPHONES" : "EARBUDS", solid: false)
+                }
+                // The largest dot size that fits the space; ViewThatFits avoids measuring with a GeometryReader.
+                ViewThatFits(in: .horizontal) {
+                    DotText(text: manager.displayModelName, dot: 6.6, gap: 2.9)
+                    DotText(text: manager.displayModelName, dot: 5.6, gap: 2.4)
+                    DotText(text: manager.displayModelName, dot: 4.6, gap: 2.0)
+                    DotText(text: manager.displayModelName, dot: 3.8, gap: 1.6)
+                    DotText(text: manager.displayModelName, dot: 3.0, gap: 1.3)
+                    DotText(text: manager.displayModelName, dot: 2.4, gap: 1.0)
+                }
+                .frame(maxWidth: .infinity, minHeight: 64, alignment: .leading)
+                HStack(spacing: 6) {
+                    Circle().fill(CMFTheme.red).frame(width: 5, height: 5)
+                    Text("\(manager.connectionState.rawValue) · Bluetooth")
+                        .font(.system(size: 10, weight: .medium, design: .monospaced))
+                        .foregroundStyle(CMFTheme.muted)
+                }
+            }
+            .padding(.leading, 30)
+            .padding(.trailing, 300)
+            VStack {
+                HStack {
+                    Spacer()
+                    Text("NOTHING_X // CONTROL")
+                        .font(.system(size: 8.5, weight: .medium, design: .monospaced)).tracking(1)
+                        .foregroundStyle(CMFTheme.muted)
+                }
+                Spacer()
+            }
+            .padding(18)
+        }
+        .frame(height: 230)
+        .glass(radius: 30)
+    }
+
+    private func chip(_ text: String, solid: Bool) -> some View {
+        Text(text)
+            .font(.system(size: 8.5, weight: .bold, design: .monospaced)).tracking(0.8)
+            .foregroundStyle(solid ? Color.black : CMFTheme.ink.opacity(0.8))
+            .padding(.horizontal, 8).padding(.vertical, 4)
+            .background(solid ? CMFTheme.ink : Color.white.opacity(0.10), in: Capsule())
+    }
+
     // MARK: Pages
 
     @ViewBuilder private var pageContent: some View {
@@ -104,26 +167,26 @@ struct DashboardView: View {
         case .sound:
             HStack(alignment: .top, spacing: 12) {
                 SoundTab(manager: manager)
-                VStack(spacing: 12) { audioMode; cells }.frame(maxWidth: 380)
+                VStack(spacing: 14) { audioMode; cells }.frame(maxWidth: 380)
             }
         case .control:
             HStack(alignment: .top, spacing: 12) {
                 ControlsTab(manager: manager)
-                VStack(spacing: 12) { audioMode; coreSystem }.frame(maxWidth: 380)
+                VStack(spacing: 14) { audioMode; coreSystem }.frame(maxWidth: 380)
             }
         case .devices:
             HStack(alignment: .top, spacing: 12) {
                 DeviceTab(manager: manager, showsDashboardButton: false)
-                VStack(spacing: 12) { cells; coreSystem }.frame(maxWidth: 380)
+                VStack(spacing: 14) { cells; coreSystem }.frame(maxWidth: 380)
             }
         }
     }
 
-    /// The older bento layout: the equaliser across the top, then battery (two parts), listening mode and bass enhance.
+    /// The equaliser presets across the top, then battery (two parts), listening mode and bass enhance.
     private var overview: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 14) {
             eqProfile
-            WeightedRow(weights: [2, 1, 1], spacing: 12) {
+            WeightedRow(weights: [2, 1, 1], spacing: 14) {
                 cells
                 audioMode
                 bassTile
@@ -135,22 +198,24 @@ struct DashboardView: View {
 
     private var eqBands: [Int] { manager.eqPreset == .custom ? manager.customEQ : manager.eqPreset.indicativeBands }
 
-    /// Full-width equaliser: the model name in the dot font, presets, and a graph whose nodes you drag.
+    /// Presets across the top. The read-only curve shows the chosen preset; choosing Custom swaps it for the
+    /// editable graph.
     private var eqProfile: some View {
         NothingCard(fillsHeight: true) {
             VStack(alignment: .leading, spacing: 14) {
-                HStack(alignment: .center) {
-                    ViewThatFits(in: .horizontal) {
-                        DotText(text: manager.displayModelName, dot: 2.6, gap: 1.2)
-                        DotText(text: manager.displayModelName, dot: 2.0, gap: 0.9)
-                        DotText(text: manager.displayModelName, dot: 1.5, gap: 0.7)
-                    }
-                    Spacer(minLength: 12)
-                    Text(manager.eqPreset.rawValue)
-                        .font(.system(size: 11)).foregroundStyle(CMFTheme.muted)
-                }
+                SectionLabel(title: "EQ_PROFILE", trailing: manager.eqPreset.rawValue)
                 PillSegments(options: EQPreset.allCases.map { ($0, $0.rawValue) }, selection: manager.eqPreset) { manager.setEQ($0) }
-                EQGraph(bands: eqBands, height: 280) { index, gain in manager.editEQBand(index, gain: gain) }
+                if manager.eqPreset == .custom {
+                    EQGraph(bands: eqBands, height: 210) { index, gain in manager.editEQBand(index, gain: gain) }
+                } else {
+                    EQCurve(bands: eqBands, height: 190)
+                    HStack {
+                        ForEach(["20", "100", "1K", "5K", "20K"], id: \.self) { label in
+                            Text(label).font(.system(size: 9, weight: .medium, design: .monospaced))
+                                .foregroundStyle(CMFTheme.muted).frame(maxWidth: .infinity)
+                        }
+                    }
+                }
             }
         }
     }
@@ -161,13 +226,15 @@ struct DashboardView: View {
         return values.isEmpty ? nil : values.reduce(0, +) / values.count
     }
 
+    /// Bass enhance as a rotary knob: drag around it to turn, and it clicks into the six levels.
     private var bassTile: some View {
         NothingCard(fillsHeight: true) {
-            VStack(alignment: .leading, spacing: 12) {
-                SectionLabel(title: "BASS_ENHANCE")
-                BigFigure(value: "\(manager.bassBoost)", unit: "/5", caption: "Low-end boost")
-                DotSlider(value: Binding(get: { manager.bassBoost }, set: manager.setBassBoost), range: 0...5)
-                Spacer(minLength: 0)
+            VStack(spacing: 10) {
+                SectionLabel(title: "BASS_ENHANCE", trailing: manager.bassBoost == 0 ? "Off" : "Level \(manager.bassBoost)")
+                RotaryKnob(value: Binding(get: { manager.bassBoost }, set: manager.setBassBoost), range: 0...5, size: 156)
+                    .frame(maxWidth: .infinity)
+                Text("Turn to add low-end punch")
+                    .font(.system(size: 11)).foregroundStyle(.secondary)
             }
         }
     }
