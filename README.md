@@ -24,13 +24,52 @@ Features depend on the model. Anything the device does not report is hidden or d
 
 CMF Buds 2a. Other models use the same protocol family but are untested here; please open an issue with a packet log if something does not work. See [docs/NOTHING-PROTOCOL.md](docs/NOTHING-PROTOCOL.md) for the frame format, command table and what is and is not verified.
 
-## Build
+## Requirements
 
-**Xcode:** open `CMFControl.xcodeproj` or `Package.swift`, choose **My Mac** and Run.
+- A Mac running **macOS 14 or later**
+- **Xcode 15 or later** (or just the Command Line Tools for the terminal route)
+- Nothing or CMF earbuds or headphones, **paired in System Settings > Bluetooth**. No hardware? Use demo mode.
 
-**Terminal:** `./build.sh` builds with SwiftPM and assembles `.build/NothingController.app`, including the asset catalog.
+## How to run
 
-The app runs as a menu bar utility with App Sandbox disabled, which RFCOMM access needs. On first launch macOS asks for Bluetooth permission.
+```sh
+git clone https://github.com/howsillyistoosilly/nothingBluetooth.git
+cd nothingBluetooth
+```
+
+**Option 1: Terminal (quickest)**
+
+```sh
+./build.sh
+open .build/NothingController.app
+```
+
+`build.sh` builds with SwiftPM and assembles a signed (ad-hoc) `NothingController.app` with the icon and product photos. Look for the headphones icon in the menu bar, with your battery next to it. Quit from the Device tab.
+
+**Option 2: Xcode**
+
+1. Open `CMFControl.xcodeproj` (this builds the real `.app` with the icon).
+2. Pick the **CMFControl** scheme and **My Mac** as the destination.
+3. Press **Run** (⌘R).
+
+You can also open `Package.swift` and run the `CMFControl` scheme, but that runs a bare executable without the app icon.
+
+**First launch**
+
+- macOS asks for **Bluetooth** permission. Allow it, or the app cannot see your device.
+- The app is unsigned for distribution. If macOS blocks it, right-click the app, choose Open, and confirm.
+- It runs as a menu bar app with no Dock icon. The Dashboard (expand button in the panel header) shows in the Dock while open.
+- The App Sandbox is off because RFCOMM access needs it.
+
+**Try it without hardware**
+
+Open the Device tab and turn on **Demo mode**, or choose "Try demo mode" on the empty screen. Nothing is sent over Bluetooth.
+
+**Troubleshooting**
+
+- **Stuck on "Connecting" or no battery:** quit any other app holding the device's control channel (for example Nothing X on a phone connected to the same earbuds), then reopen this app.
+- **Debug a device:** Device tab > Packet inspector shows the raw frames; include them when opening an issue.
+- **Xcode shows no run destination:** reopen the project and make sure the scheme is `CMFControl`.
 
 ## Project layout
 
