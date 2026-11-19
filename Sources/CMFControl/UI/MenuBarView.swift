@@ -100,7 +100,6 @@ struct MenuBarView: View {
         }
         .background(Color(white: 0.07), in: Capsule())
         .overlay(Capsule().strokeBorder(CMFTheme.lineStrong, lineWidth: 1))
-        .shadow(color: .black.opacity(0.6), radius: 12, y: 6)
         .padding(.horizontal, 28)
         .padding(.bottom, 16)
         .padding(.top, 8)

@@ -21,7 +21,7 @@ struct ControlsTab: View {
             }
             NothingCard {
                 VStack(alignment: .leading, spacing: 16) {
-                    SectionLabel(title: manager.isOverEar ? "WEAR DETECTION" : "IN-EAR DETECTION", trailing: "ON REMOVAL")
+                    SectionLabel(title: manager.isOverEar ? "WEAR DETECTION" : "IN-EAR DETECTION", trailing: "On removal")
                     ToggleRow(title: manager.isOverEar ? "Auto pause" : "In-ear detection",
                               caption: "Pause playback when you take them off. Saved and re-applied each time the device connects.",
                               isOn: Binding(get: { manager.inEarDetectionEnabled }, set: manager.setInEarDetection),

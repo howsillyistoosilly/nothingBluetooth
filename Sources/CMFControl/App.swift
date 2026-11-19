@@ -12,7 +12,7 @@ struct CMFControlApp: App {
         }
         .menuBarExtraStyle(.window)
 
-        Window("Nothing Dashboard", id: "dashboard") {
+        Window("NothingController", id: "dashboard") {
             DashboardView(manager: bluetooth)
         }
         .defaultSize(width: 1100, height: 760)

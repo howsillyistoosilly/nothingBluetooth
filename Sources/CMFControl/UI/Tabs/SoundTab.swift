@@ -43,7 +43,7 @@ struct SoundTab: View {
                             }
                             .padding(.horizontal, 12)
                             .padding(.vertical, 10)
-                            .background(selected ? Color.white.opacity(0.14) : CMFTheme.raised, in: Capsule())
+                            .background(selected ? Color.white.opacity(0.14) : CMFTheme.raised, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
                         }
                         .buttonStyle(.plain)
                     }

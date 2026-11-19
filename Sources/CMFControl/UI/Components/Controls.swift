@@ -16,52 +16,64 @@ struct NothingCard<Content: View>: View {
     }
 }
 
-/// Mono caps tile label such as `POWER_SUPPLY`, with an optional readout on the right.
+/// Tile title in the macOS settings style: sentence case SF, secondary colour, optional readout on the right.
 struct SectionLabel: View {
     let title: String
     var trailing: String?
 
+    private var text: String {
+        let words = title.replacingOccurrences(of: "_", with: " ").lowercased()
+        return words.prefix(1).uppercased() + words.dropFirst()
+    }
+
     var body: some View {
-        HStack(spacing: 6) {
-            RoundedRectangle(cornerRadius: 1).fill(CMFTheme.muted).frame(width: 6, height: 6)
-            Text(title.uppercased().replacingOccurrences(of: " ", with: "_"))
-                .font(.system(size: 9.5, weight: .semibold, design: .monospaced))
-                .tracking(1.1)
-                .foregroundStyle(CMFTheme.ink.opacity(0.7))
+        HStack {
+            Text(text)
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(.secondary)
             Spacer()
-            Text(trailing ?? "···")
-                .font(.system(size: 9.5, weight: .medium, design: .monospaced))
-                .foregroundStyle(CMFTheme.muted)
+            if let trailing {
+                Text(trailing)
+                    .font(.system(size: 11))
+                    .foregroundStyle(CMFTheme.muted)
+            }
         }
     }
 }
 
-/// Row of square outlined buttons; the selected one is solid white, as on the Aether EQ profile tile.
+/// Segmented control in the macOS style: a recessed track with a raised white selection.
 struct PillSegments<Value: Hashable>: View {
     let options: [(value: Value, title: String)]
     let selection: Value?
     let onSelect: (Value) -> Void
+    @State private var hovered: Value?
 
     var body: some View {
-        HStack(spacing: 6) {
+        HStack(spacing: 2) {
             ForEach(options, id: \.value) { option in
                 let selected = option.value == selection
                 Button { onSelect(option.value) } label: {
-                    Text(option.title.uppercased())
-                        .font(.system(size: 10, weight: .semibold, design: .monospaced))
-                        .tracking(0.6)
+                    Text(option.title)
+                        .font(.system(size: 12, weight: .medium))
                         .lineLimit(1)
-                        .minimumScaleFactor(0.7)
-                        .foregroundStyle(selected ? Color.black : CMFTheme.ink.opacity(0.75))
+                        .minimumScaleFactor(0.75)
+                        .foregroundStyle(selected ? Color.black : CMFTheme.ink.opacity(0.85))
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 11)
-                        .background(selected ? Color.white : .clear, in: RoundedRectangle(cornerRadius: 6, style: .continuous))
-                        .overlay(RoundedRectangle(cornerRadius: 6, style: .continuous)
-                            .strokeBorder(selected ? Color.clear : CMFTheme.lineStrong, lineWidth: 1))
+                        .padding(.vertical, 6)
+                        .background {
+                            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                                .fill(selected ? Color.white : (hovered == option.value ? Color.white.opacity(0.08) : .clear))
+                                .shadow(color: .black.opacity(selected ? 0.35 : 0), radius: 1.5, y: 1)
+                        }
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .onHover { hovering in hovered = hovering ? option.value : (hovered == option.value ? nil : hovered) }
+                .accessibilityAddTraits(selected ? .isSelected : [])
             }
         }
+        .padding(2)
+        .background(Color.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
     }
 }
 
@@ -128,7 +140,7 @@ struct NothingSwitch: View {
     }
 }
 
-/// Settings row: title, caption and a switch.
+/// Settings row: title, caption and the native macOS switch tinted with the Nothing red.
 struct ToggleRow: View {
     let title: String
     let caption: String
@@ -136,16 +148,19 @@ struct ToggleRow: View {
     var isAvailable = true
 
     var body: some View {
-        HStack(spacing: 10) {
-            VStack(alignment: .leading, spacing: 3) {
+        HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(title).font(.system(size: 13, weight: .medium))
                 Text(caption)
-                    .font(.system(size: 10))
-                    .foregroundStyle(CMFTheme.muted)
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
             Spacer(minLength: 8)
-            NothingSwitch(isOn: $isOn)
+            Toggle(title, isOn: $isOn)
+                .labelsHidden()
+                .toggleStyle(.switch)
+                .tint(CMFTheme.red)
         }
         .disabled(!isAvailable)
         .opacity(isAvailable ? 1 : 0.4)

@@ -11,23 +11,26 @@ struct GestureCard: View {
 
     var body: some View {
         NothingCard {
-            VStack(alignment: .leading, spacing: 14) {
+            VStack(alignment: .leading, spacing: 12) {
                 HStack {
                     SectionLabel(title: "GESTURES")
                     Button { manager.refreshGestures() } label: {
-                        Image(systemName: "arrow.clockwise").font(.system(size: 11, weight: .semibold))
+                        Image(systemName: "arrow.clockwise").font(.system(size: 11, weight: .medium))
                     }
                     .buttonStyle(.plain)
+                    .foregroundStyle(.secondary)
                     .help("Read gestures from the device")
                 }
                 PillSegments(options: EarSide.allCases.map { ($0, $0.title) }, selection: side) { side = $0 }
                 if slots.isEmpty {
-                    Text("The device has not reported any gestures yet. Tap refresh; if it stays empty, this model may not support them.")
-                        .font(.system(size: 11)).foregroundStyle(CMFTheme.muted)
+                    Text("The device has not reported any gestures yet. Choose refresh; if it stays empty, this model may not support them.")
+                        .font(.system(size: 11)).foregroundStyle(.secondary)
                 }
-                ForEach(slots, id: \.code) { slot in
-                    row(slot)
-                    if slot != slots.last { Divider().overlay(CMFTheme.line) }
+                VStack(spacing: 0) {
+                    ForEach(slots, id: \.code) { slot in
+                        row(slot)
+                        if slot != slots.last { Divider().overlay(CMFTheme.line) }
+                    }
                 }
             }
         }
@@ -39,27 +42,48 @@ struct GestureCard: View {
         GestureAction(rawValue: code)?.isNoiseControl == true ? GestureAction.noiseControl.rawValue : code
     }
 
+    private func options(for slot: GestureSlot) -> [GestureAction] {
+        var seen = Set<UInt8>()
+        return slot.allowedActions
+            .map { $0.isNoiseControl ? GestureAction.noiseControl : $0 }
+            .filter { seen.insert($0.rawValue).inserted }
+    }
+
     private func row(_ slot: GestureSlot) -> some View {
         let code = manager.gestures[slot] ?? GestureAction.none.rawValue
         let known = GestureAction(rawValue: code)
-        var options = slot.allowedActions.map { $0.isNoiseControl ? GestureAction.noiseControl : $0 }
-        var seen = Set<UInt8>()
-        options = options.filter { seen.insert($0.rawValue).inserted }
+        let current = menuCode(code)
+        let currentTitle = known.map { $0.isNoiseControl ? GestureAction.noiseControl.title : $0.title } ?? "Action \(code)"
         return VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text(slot.title).font(.system(size: 13, weight: .medium))
-                Spacer()
-                Picker("", selection: Binding(
-                    get: { menuCode(code) },
-                    set: { manager.setGesture(slot, actionCode: $0) }
-                )) {
-                    ForEach(options) { Text($0.title).tag($0.rawValue) }
-                    if known == nil { Text("Action \(code)").tag(code) }
+                Text(slot.title).font(.system(size: 13))
+                Spacer(minLength: 12)
+                // System Settings style: the value reads as plain text with a chevron and opens a native menu.
+                Menu {
+                    ForEach(options(for: slot)) { action in
+                        Button {
+                            manager.setGesture(slot, actionCode: action.rawValue)
+                        } label: {
+                            if action.rawValue == current { Label(action.title, systemImage: "checkmark") } else { Text(action.title) }
+                        }
+                    }
+                } label: {
+                    HStack(spacing: 4) {
+                        Text(currentTitle).foregroundStyle(.secondary)
+                        Image(systemName: "chevron.up.chevron.down")
+                            .font(.system(size: 9, weight: .semibold))
+                            .foregroundStyle(.tertiary)
+                    }
+                    .font(.system(size: 13))
+                    .contentShape(Rectangle())
                 }
-                .labelsHidden()
-                .frame(width: 170)
+                .menuStyle(.button)
+                .buttonStyle(.plain)
+                .menuIndicator(.hidden)
+                .fixedSize()
             }
-            if let known, known.isNoiseControl { cycle(slot, known) }
+            .padding(.vertical, 8)
+            if let known, known.isNoiseControl { cycle(slot, known).padding(.bottom, 8) }
         }
     }
 
@@ -73,11 +97,15 @@ struct GestureCard: View {
                 guard [next.anc, next.transparency, next.off].filter({ $0 }).count >= 2 else { return }
                 manager.setGesture(slot, actionCode: GestureAction.noise(anc: next.anc, transparency: next.transparency, off: next.off).rawValue)
             } label: {
-                Text(title)
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundStyle(isOn ? Color.black : CMFTheme.ink.opacity(0.75))
-                    .frame(maxWidth: .infinity).padding(.vertical, 7)
-                    .background(isOn ? Color.white : CMFTheme.raised, in: Capsule())
+                HStack(spacing: 5) {
+                    Image(systemName: isOn ? "checkmark.circle.fill" : "circle")
+                        .font(.system(size: 12))
+                        .foregroundStyle(isOn ? CMFTheme.red : Color.secondary)
+                    Text(title).font(.system(size: 12))
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 6)
+                .background(Color.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 6, style: .continuous))
             }
             .buttonStyle(.plain)
         }

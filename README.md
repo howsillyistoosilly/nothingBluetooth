@@ -1,4 +1,4 @@
-# CMFControl
+# NothingController
 
 A native macOS menu bar app for **Nothing** and **CMF by Nothing** earbuds and headphones, styled after the Nothing X app: true black, flat grey cards, a dot-matrix typeface and one red accent. SwiftUI and IOBluetooth, macOS 14+. Unofficial and not affiliated with Nothing.
 
@@ -28,7 +28,7 @@ CMF Buds 2a. Other models use the same protocol family but are untested here; pl
 
 **Xcode:** open `CMFControl.xcodeproj` or `Package.swift`, choose **My Mac** and Run.
 
-**Terminal:** `./build.sh` builds with SwiftPM and assembles `.build/CMFControl.app`, including the asset catalog.
+**Terminal:** `./build.sh` builds with SwiftPM and assembles `.build/NothingController.app`, including the asset catalog.
 
 The app runs as a menu bar utility with App Sandbox disabled, which RFCOMM access needs. On first launch macOS asks for Bluetooth permission.
 

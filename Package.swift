@@ -4,7 +4,7 @@ import PackageDescription
 let package = Package(
     name: "CMFControl",
     platforms: [.macOS(.v14)],
-    products: [.executable(name: "CMFControl", targets: ["CMFControl"])],
+    products: [.executable(name: "NothingController", targets: ["CMFControl"])],
     targets: [
         .executableTarget(
             name: "CMFControl",
