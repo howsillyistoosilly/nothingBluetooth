@@ -48,4 +48,4 @@ Device-info (`0xC006`) replies are newline separated `device,type,value` rows; t
 - [Nothing/CMF device compatibility notes](https://github.com/ezvk/nadamas/blob/main/DEVICES.md) — model coverage and limits.
 - [NT Link capture notes](https://github.com/ncr/omarchy-headphones/blob/main/PROTOCOL.md) — CMF Headphone Pro channel 28, battery pushes, and device-info activation sequence.
 
-CMFControl does not include or depend on these projects; these links document protocol provenance and compatibility caveats.
+CMFControl does not bundle or link against these projects. The formats and connection approach taken from nothing-x-macos are why this project is GPL-3.0; the other links document protocol provenance and compatibility caveats.
