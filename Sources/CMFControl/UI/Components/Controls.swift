@@ -7,7 +7,7 @@ struct NothingCard<Content: View>: View {
 
     var body: some View {
         content
-            .padding(padding)
+            .padding(padding)   
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(CMFTheme.surface, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
     }
