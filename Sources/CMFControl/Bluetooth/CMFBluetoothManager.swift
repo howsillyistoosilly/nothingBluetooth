@@ -296,6 +296,12 @@ final class CMFBluetoothManager: NSObject {
         scheduleCustomEQSend()
     }
 
+    /// Edits one band from the graph; moving a band turns the current preset into the custom curve.
+    func editEQBand(_ index: Int, gain: Int) {
+        if eqPreset != .custom { customEQ = eqPreset.indicativeBands }
+        setCustomEQBand(index, gain: gain)
+    }
+
     func resetCustomEQ() {
         customEQ = [0, 0, 0]
         scheduleCustomEQSend()

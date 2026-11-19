@@ -22,16 +22,7 @@ struct SoundTab: View {
         NothingCard {
             VStack(alignment: .leading, spacing: 14) {
                 SectionLabel(title: "EQUALISER", trailing: manager.eqPreset.rawValue)
-                EQCurve(bands: displayedBands)
-                    .padding(.horizontal, 2)
-                HStack(spacing: 4) {
-                    ForEach(["20", "100", "1K", "5K", "20K"], id: \.self) { label in
-                        Text(label)
-                            .font(.system(size: 8, weight: .medium, design: .monospaced))
-                            .foregroundStyle(CMFTheme.muted)
-                            .frame(maxWidth: .infinity)
-                    }
-                }
+                EQGraph(bands: displayedBands, height: 200) { index, gain in manager.editEQBand(index, gain: gain) }
                 LazyVGrid(columns: [GridItem(.flexible(), spacing: 6), GridItem(.flexible(), spacing: 6)], spacing: 6) {
                     ForEach(EQPreset.allCases) { preset in
                         let selected = manager.eqPreset == preset
@@ -56,13 +47,6 @@ struct SoundTab: View {
     private var customEditor: some View {
         VStack(alignment: .leading, spacing: 10) {
             Divider().overlay(CMFTheme.line)
-            HStack(alignment: .top, spacing: 6) {
-                ForEach(Array(["BASS", "MID", "TREBLE"].enumerated()), id: \.offset) { index, title in
-                    BandSlider(title: title, gain: manager.customEQ[index], isEnabled: true) {
-                        manager.setCustomEQBand(index, gain: $0)
-                    }
-                }
-            }
             HStack(spacing: 8) {
                 TextField("Preset name", text: $presetName)
                     .textFieldStyle(.plain)

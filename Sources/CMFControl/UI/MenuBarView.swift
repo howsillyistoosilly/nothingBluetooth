@@ -38,9 +38,11 @@ struct MenuBarView: View {
                 .padding(.horizontal, 16)
                 .padding(.bottom, 16)
             }
+            .scrollBounceBehavior(.basedOnSize)
             if manager.isConnected { tabBar }
         }
         .frame(width: 400, height: 660)
+        .clipped()
         .background(AmbientBackground(tall: true))
         .foregroundStyle(CMFTheme.ink)
         .preferredColorScheme(.dark)

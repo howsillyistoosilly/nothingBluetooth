@@ -15,6 +15,7 @@ struct CMFControlApp: App {
         Window("NothingController", id: "dashboard") {
             DashboardView(manager: bluetooth)
         }
-        .defaultSize(width: 1280, height: 900)
+        .defaultSize(width: 1280, height: 760)
+        .windowResizability(.contentMinSize)
     }
 }

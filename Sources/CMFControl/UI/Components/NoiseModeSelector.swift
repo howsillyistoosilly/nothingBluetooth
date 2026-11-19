@@ -15,57 +15,51 @@ private enum NoiseChoice: String, CaseIterable, Identifiable {
     }
 }
 
-/// Listening mode as a scrollable selector: scroll sideways and the centred item becomes the active mode.
-/// With noise cancelling on, the strength buttons appear underneath.
+/// Listening mode as a vertical scroll selector: scroll up or down and the centred row becomes the active mode.
+/// With noise cancelling on, the strength buttons (Low, Mid, High, Adaptive) appear underneath.
 struct NoiseModeSelector: View {
     @Bindable var manager: CMFBluetoothManager
     @State private var position: NoiseChoice?
 
+    private let rowHeight: CGFloat = 40
+
     var body: some View {
         VStack(spacing: 12) {
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 10) {
-                    // Blank end items let the first and last real item reach the centre.
-                    Color.clear.frame(height: 1).containerRelativeFrame(.horizontal, count: 3, spacing: 10)
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(spacing: 6) {
+                    // Blank end rows let the first and last real row reach the centre.
+                    Color.clear.frame(height: rowHeight)
                     ForEach(NoiseChoice.allCases) { choice in
                         Button { withAnimation(.smooth(duration: 0.3)) { position = choice } } label: {
-                            Text(choice.rawValue)
-                                .font(.system(size: 14, weight: .semibold))
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.7)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 44)
-                                .background {
-                                    if position == choice {
-                                        Capsule().fill(Color.white.opacity(0.16))
-                                            .overlay(Capsule().strokeBorder(Color.white.opacity(0.22), lineWidth: 1))
-                                    }
+                            HStack(spacing: 8) {
+                                Circle().fill(CMFTheme.red).frame(width: 5, height: 5).opacity(position == choice ? 1 : 0)
+                                Text(choice.rawValue).font(.system(size: 14, weight: .semibold))
+                            }
+                            .frame(maxWidth: .infinity)
+                            .frame(height: rowHeight)
+                            .background {
+                                if position == choice {
+                                    Capsule().fill(Color.white.opacity(0.16))
+                                        .overlay(Capsule().strokeBorder(Color.white.opacity(0.22), lineWidth: 1))
                                 }
-                                .overlay(alignment: .bottom) {
-                                    Circle().fill(CMFTheme.red).frame(width: 4, height: 4)
-                                        .opacity(position == choice ? 1 : 0).offset(y: 7)
-                                }
+                            }
                         }
                         .buttonStyle(.plain)
-                        .containerRelativeFrame(.horizontal, count: 3, spacing: 10)
                         .id(choice)
-                        .scrollTransition(axis: .horizontal) { content, phase in
-                            content.opacity(phase.isIdentity ? 1 : 0.4).scaleEffect(phase.isIdentity ? 1 : 0.86)
+                        .scrollTransition(axis: .vertical) { content, phase in
+                            content.opacity(phase.isIdentity ? 1 : 0.4).scaleEffect(phase.isIdentity ? 1 : 0.88)
                         }
                     }
-                    Color.clear.frame(height: 1).containerRelativeFrame(.horizontal, count: 3, spacing: 10)
+                    Color.clear.frame(height: rowHeight)
                 }
                 .scrollTargetLayout()
             }
             .scrollTargetBehavior(.viewAligned)
             .scrollPosition(id: $position, anchor: .center)
-            .mask(LinearGradient(stops: [.init(color: .clear, location: 0), .init(color: .black, location: 0.12),
-                                         .init(color: .black, location: 0.88), .init(color: .clear, location: 1)],
-                                 startPoint: .leading, endPoint: .trailing))
-            // A horizontal scroll view reports its whole content width as its ideal width, which made grids size
-            // their columns far too wide; give it a small ideal width and let it flex to whatever it is offered.
-            .frame(minWidth: 0, idealWidth: 120, maxWidth: .infinity)
-            .frame(height: 56)
+            .mask(LinearGradient(stops: [.init(color: .clear, location: 0), .init(color: .black, location: 0.2),
+                                         .init(color: .black, location: 0.8), .init(color: .clear, location: 1)],
+                                 startPoint: .top, endPoint: .bottom))
+            .frame(height: rowHeight * 3 + 12)
 
             if manager.noiseMode.isANC {
                 PillSegments(options: [(ANCMode.low, "Low"), (.mid, "Mid"), (.high, "High"), (.adaptive, "Adaptive")],

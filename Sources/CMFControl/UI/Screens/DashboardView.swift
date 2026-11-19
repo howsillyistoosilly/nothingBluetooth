@@ -18,7 +18,7 @@ private enum DashboardPage: String, CaseIterable, Identifiable {
     }
 }
 
-/// Full-size window: a slim rail on the left, a product hero, then a bento grid of tiles.
+/// Full-size window: a slim rail on the left and a bento grid of tiles.
 /// Appears in the Dock while open.
 struct DashboardView: View {
     @Bindable var manager: CMFBluetoothManager
@@ -31,7 +31,6 @@ struct DashboardView: View {
             ScrollView {
                 if manager.isConnected {
                     VStack(spacing: 12) {
-                        hero
                         pageContent
                     }
                     .padding(.leading, 84)
@@ -47,8 +46,10 @@ struct DashboardView: View {
                         .frame(maxWidth: .infinity)
                 }
             }
+            .scrollBounceBehavior(.basedOnSize)
             rail
         }
+        .clipped()
         .frame(minWidth: 1040, minHeight: 700)
         .background(AmbientBackground())
         .foregroundStyle(CMFTheme.ink)
@@ -95,68 +96,6 @@ struct DashboardView: View {
         .padding(.vertical, 12)
     }
 
-    // MARK: Hero
-
-    private var hero: some View {
-        ZStack(alignment: .leading) {
-            DotGrid(pitch: 14, dot: 1.4, color: .white.opacity(0.07))
-                .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
-            HStack {
-                Spacer()
-                DeviceArtwork(modelName: manager.artworkModelName)
-                    .frame(maxWidth: 360)
-                    .padding(.vertical, 12)
-                    .padding(.trailing, 40)
-                    .mask(LinearGradient(stops: [.init(color: .clear, location: 0), .init(color: .black, location: 0.35)],
-                                         startPoint: .leading, endPoint: .trailing))
-            }
-            VStack(alignment: .leading, spacing: 10) {
-                HStack(spacing: 6) {
-                    chip(manager.connectionState.rawValue.uppercased(), solid: true)
-                    chip(manager.isOverEar ? "HEADPHONES" : "EARBUDS", solid: false)
-                }
-                // The largest dot size that fits the space; ViewThatFits avoids measuring with a GeometryReader.
-                ViewThatFits(in: .horizontal) {
-                    DotText(text: manager.displayModelName, dot: 6.6, gap: 2.9)
-                    DotText(text: manager.displayModelName, dot: 5.6, gap: 2.4)
-                    DotText(text: manager.displayModelName, dot: 4.6, gap: 2.0)
-                    DotText(text: manager.displayModelName, dot: 3.8, gap: 1.6)
-                    DotText(text: manager.displayModelName, dot: 3.0, gap: 1.3)
-                    DotText(text: manager.displayModelName, dot: 2.4, gap: 1.0)
-                }
-                .frame(maxWidth: .infinity, minHeight: 64, alignment: .leading)
-                HStack(spacing: 6) {
-                    Circle().fill(CMFTheme.red).frame(width: 5, height: 5)
-                    Text("\(manager.connectionState.rawValue) · Bluetooth")
-                        .font(.system(size: 10, weight: .medium, design: .monospaced))
-                        .foregroundStyle(CMFTheme.muted)
-                }
-            }
-            .padding(.leading, 30)
-            .padding(.trailing, 300)
-            VStack {
-                HStack {
-                    Spacer()
-                    Text("NOTHING_X // CONTROL")
-                        .font(.system(size: 8.5, weight: .medium, design: .monospaced)).tracking(1)
-                        .foregroundStyle(CMFTheme.muted)
-                }
-                Spacer()
-            }
-            .padding(18)
-        }
-        .frame(height: 230)
-        .glass(radius: 30)
-    }
-
-    private func chip(_ text: String, solid: Bool) -> some View {
-        Text(text)
-            .font(.system(size: 8.5, weight: .bold, design: .monospaced)).tracking(0.8)
-            .foregroundStyle(solid ? Color.black : CMFTheme.ink.opacity(0.8))
-            .padding(.horizontal, 8).padding(.vertical, 4)
-            .background(solid ? CMFTheme.ink : Color.white.opacity(0.10), in: Capsule())
-    }
-
     // MARK: Pages
 
     @ViewBuilder private var pageContent: some View {
@@ -180,22 +119,15 @@ struct DashboardView: View {
         }
     }
 
-    /// Explicit rows rather than a Grid: a Grid sizes its columns from every cell's ideal width, which let wide
-    /// content push the whole page past the window.
+    /// The older bento layout: the equaliser across the top, then battery (two parts), listening mode and bass enhance.
     private var overview: some View {
         VStack(spacing: 12) {
             eqProfile
-            HStack(alignment: .top, spacing: 12) {
-                cells.frame(maxWidth: .infinity)
-                audioMode.frame(maxWidth: .infinity)
+            WeightedRow(weights: [2, 1, 1], spacing: 12) {
+                cells
+                audioMode
+                bassTile
             }
-            .fixedSize(horizontal: false, vertical: true)
-            HStack(alignment: .top, spacing: 12) {
-                bassTile.frame(width: 250)
-                coreSystem.frame(width: 270)
-                quickSettings.frame(maxWidth: .infinity)
-            }
-            .fixedSize(horizontal: false, vertical: true)
         }
     }
 
@@ -203,35 +135,22 @@ struct DashboardView: View {
 
     private var eqBands: [Int] { manager.eqPreset == .custom ? manager.customEQ : manager.eqPreset.indicativeBands }
 
-    /// Full-width equaliser: presets and the live curve on the left, band sliders on the right.
+    /// Full-width equaliser: the model name in the dot font, presets, and a graph whose nodes you drag.
     private var eqProfile: some View {
         NothingCard(fillsHeight: true) {
-            HStack(alignment: .top, spacing: 28) {
-                VStack(alignment: .leading, spacing: 14) {
-                    SectionLabel(title: "EQ_PROFILE", trailing: manager.eqPreset.rawValue)
-                    PillSegments(options: EQPreset.allCases.map { ($0, $0.rawValue) }, selection: manager.eqPreset) { manager.setEQ($0) }
-                    EQCurve(bands: eqBands)
-                    HStack {
-                        ForEach(["20", "100", "1K", "5K", "20K"], id: \.self) { label in
-                            Text(label).font(.system(size: 9, weight: .medium, design: .monospaced))
-                                .foregroundStyle(CMFTheme.muted).frame(maxWidth: .infinity)
-                        }
+            VStack(alignment: .leading, spacing: 14) {
+                HStack(alignment: .center) {
+                    ViewThatFits(in: .horizontal) {
+                        DotText(text: manager.displayModelName, dot: 2.6, gap: 1.2)
+                        DotText(text: manager.displayModelName, dot: 2.0, gap: 0.9)
+                        DotText(text: manager.displayModelName, dot: 1.5, gap: 0.7)
                     }
+                    Spacer(minLength: 12)
+                    Text(manager.eqPreset.rawValue)
+                        .font(.system(size: 11)).foregroundStyle(CMFTheme.muted)
                 }
-                .frame(maxWidth: .infinity)
-                VStack(alignment: .leading, spacing: 8) {
-                    SectionLabel(title: "BANDS", trailing: "dB")
-                    HStack(alignment: .top, spacing: 6) {
-                        ForEach(Array(["BASS", "MID", "TREBLE"].enumerated()), id: \.offset) { index, title in
-                            BandSlider(title: title, gain: eqBands[index], isEnabled: true) { gain in
-                                // Moving a band turns the current preset into the custom curve.
-                                if manager.eqPreset != .custom { manager.customEQ = manager.eqPreset.indicativeBands }
-                                manager.setCustomEQBand(index, gain: gain)
-                            }
-                        }
-                    }
-                }
-                .frame(width: 270)
+                PillSegments(options: EQPreset.allCases.map { ($0, $0.rawValue) }, selection: manager.eqPreset) { manager.setEQ($0) }
+                EQGraph(bands: eqBands, height: 280) { index, gain in manager.editEQBand(index, gain: gain) }
             }
         }
     }
@@ -242,15 +161,13 @@ struct DashboardView: View {
         return values.isEmpty ? nil : values.reduce(0, +) / values.count
     }
 
-    /// Bass enhance as a rotary knob.
     private var bassTile: some View {
         NothingCard(fillsHeight: true) {
-            VStack(spacing: 10) {
-                SectionLabel(title: "BASS_ENHANCE", trailing: manager.bassBoost == 0 ? "Off" : "Level \(manager.bassBoost)")
-                RotaryKnob(value: Binding(get: { manager.bassBoost }, set: manager.setBassBoost), range: 0...5, size: 168)
-                    .frame(maxWidth: .infinity)
-                Text("Turn to add low-end punch")
-                    .font(.system(size: 11)).foregroundStyle(.secondary)
+            VStack(alignment: .leading, spacing: 12) {
+                SectionLabel(title: "BASS_ENHANCE")
+                BigFigure(value: "\(manager.bassBoost)", unit: "/5", caption: "Low-end boost")
+                DotSlider(value: Binding(get: { manager.bassBoost }, set: manager.setBassBoost), range: 0...5)
+                Spacer(minLength: 0)
             }
         }
     }
@@ -339,6 +256,37 @@ struct DashboardView: View {
                 }
                 .buttonStyle(.plain)
             }
+        }
+    }
+}
+
+
+/// Lays children out in a row with widths proportional to `weights`, all sharing the tallest child's height.
+struct WeightedRow: Layout {
+    var weights: [CGFloat]
+    var spacing: CGFloat = 12
+
+    private func widths(for total: CGFloat, count: Int) -> [CGFloat] {
+        let w = Array(weights.prefix(count)) + Array(repeating: 1, count: max(0, count - weights.count))
+        let available = max(0, total - spacing * CGFloat(count - 1))
+        let sum = w.reduce(0, +)
+        return w.map { available * $0 / sum }
+    }
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let total = proposal.width ?? 900
+        let columns = widths(for: total, count: subviews.count)
+        let height = zip(subviews, columns).map { $0.sizeThatFits(ProposedViewSize(width: $1, height: nil)).height }.max() ?? 0
+        return CGSize(width: total, height: height)
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        let columns = widths(for: bounds.width, count: subviews.count)
+        let height = zip(subviews, columns).map { $0.sizeThatFits(ProposedViewSize(width: $1, height: nil)).height }.max() ?? 0
+        var x = bounds.minX
+        for (subview, width) in zip(subviews, columns) {
+            subview.place(at: CGPoint(x: x, y: bounds.minY), anchor: .topLeading, proposal: ProposedViewSize(width: width, height: height))
+            x += width + spacing
         }
     }
 }
