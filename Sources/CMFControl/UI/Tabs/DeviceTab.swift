@@ -7,55 +7,77 @@ struct DeviceTab: View {
     @Environment(\.openWindow) private var openWindow
     var showsDashboardButton = true
 
+    /// Two columns for the dashboard, where the page has to fit without scrolling.
+    var wide = false
+
     var body: some View {
-        VStack(spacing: 12) {
-            MyDevicesCard(manager: manager)
-            NothingCard {
-                VStack(alignment: .leading, spacing: 12) {
-                    SectionLabel(title: "ABOUT")
-                    infoRow("Name", manager.deviceName)
-                    infoRow("Model", manager.displayModelName)
-                    infoRow("Firmware", manager.firmwareVersion ?? "-")
-                    infoRow("Serial", manager.serialNumber ?? "-")
-                    infoRow("MAC address", manager.deviceAddress ?? "-")
-                    infoRow("Link", manager.statusDetail)
-                }
+        if wide {
+            HStack(alignment: .top, spacing: 14) {
+                VStack(spacing: 14) { MyDevicesCard(manager: manager); aboutCard }.frame(maxWidth: .infinity)
+                VStack(spacing: 14) { menuBarBatteryCard; appCard; NothingCard { inspector } }.frame(maxWidth: .infinity)
             }
-            NothingCard {
-                VStack(alignment: .leading, spacing: 12) {
-                    SectionLabel(title: "MENU BAR BATTERY")
-                    PillSegments(options: BatteryDisplayMode.allCases.map { ($0, $0.rawValue) },
-                                 selection: manager.batteryDisplay) { manager.batteryDisplay = $0 }
-                    Text("L·R shows both buds, AVG the average, MIN the lower of the two.")
-                        .font(.system(size: 10)).foregroundStyle(CMFTheme.muted)
-                }
+        } else {
+            VStack(spacing: 12) {
+                MyDevicesCard(manager: manager)
+                aboutCard
+                menuBarBatteryCard
+                appCard
+                NothingCard { inspector }
             }
-            NothingCard {
-                VStack(alignment: .leading, spacing: 14) {
-                    SectionLabel(title: "APP")
-                    ToggleRow(title: "Demo mode", caption: "Simulate a headset. Nothing is sent over Bluetooth.", isOn: $manager.isMockMode)
-                    Divider().overlay(CMFTheme.line)
-                    if showsDashboardButton {
-                        Button("Open dashboard") {
-                            openWindow(id: "dashboard")
-                            NSApp.activate(ignoringOtherApps: true)
-                        }
-                        .buttonStyle(.plain)
-                        .font(.system(size: 12, weight: .semibold))
-                        Divider().overlay(CMFTheme.line)
-                    }
-                    HStack {
-                        Button(manager.isConnected ? "Refresh status" : "Scan for headphones") {
-                            manager.isConnected ? manager.refreshBattery() : manager.scanPairedDevices()
-                        }
-                        Spacer()
-                        Button("Quit") { NSApplication.shared.terminate(nil) }
+        }
+    }
+
+    private var aboutCard: some View {
+        NothingCard {
+            VStack(alignment: .leading, spacing: 12) {
+                SectionLabel(title: "ABOUT")
+                infoRow("Name", manager.deviceName)
+                infoRow("Model", manager.displayModelName)
+                infoRow("Firmware", manager.firmwareVersion ?? "-")
+                infoRow("Serial", manager.serialNumber ?? "-")
+                infoRow("MAC address", manager.deviceAddress ?? "-")
+                infoRow("Link", manager.statusDetail)
+            }
+        }
+    }
+
+    private var menuBarBatteryCard: some View {
+        NothingCard {
+            VStack(alignment: .leading, spacing: 12) {
+                SectionLabel(title: "MENU BAR BATTERY")
+                PillSegments(options: BatteryDisplayMode.allCases.map { ($0, $0.rawValue) },
+                             selection: manager.batteryDisplay) { manager.batteryDisplay = $0 }
+                Text("L·R shows both buds, AVG the average, MIN the lower of the two.")
+                    .font(.system(size: 10)).foregroundStyle(CMFTheme.muted)
+            }
+        }
+    }
+
+    private var appCard: some View {
+        NothingCard {
+            VStack(alignment: .leading, spacing: 14) {
+                SectionLabel(title: "APP")
+                ToggleRow(title: "Demo mode", caption: "Simulate a headset. Nothing is sent over Bluetooth.", isOn: $manager.isMockMode)
+                Divider().overlay(CMFTheme.line)
+                if showsDashboardButton {
+                    Button("Open dashboard") {
+                        openWindow(id: "dashboard")
+                        NSApp.activate(ignoringOtherApps: true)
                     }
                     .buttonStyle(.plain)
                     .font(.system(size: 12, weight: .semibold))
+                    Divider().overlay(CMFTheme.line)
                 }
+                HStack {
+                    Button(manager.isConnected ? "Refresh status" : "Scan for headphones") {
+                        manager.isConnected ? manager.refreshBattery() : manager.scanPairedDevices()
+                    }
+                    Spacer()
+                    Button("Quit") { NSApplication.shared.terminate(nil) }
+                }
+                .buttonStyle(.plain)
+                .font(.system(size: 12, weight: .semibold))
             }
-            NothingCard { inspector }
         }
     }
 

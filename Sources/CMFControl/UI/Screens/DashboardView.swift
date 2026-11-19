@@ -23,6 +23,7 @@ private enum DashboardPage: String, CaseIterable, Identifiable {
 struct DashboardView: View {
     @Bindable var manager: CMFBluetoothManager
     @State private var page: DashboardPage
+    @State private var presetName = ""
 
     init(manager: CMFBluetoothManager, initialPage: Int = 0) {
         self.manager = manager
@@ -34,18 +35,15 @@ struct DashboardView: View {
         // window width; the left inset keeps it clear of the rail.
         ZStack(alignment: .leading) {
             if manager.isConnected {
-                ScrollView {
-                    VStack(spacing: 14) {
-                        if page == .overview { hero }
-                        pageContent
-                    }
-                    .padding(.leading, 96)
-                    .padding(.trailing, 24)
-                    .padding(.vertical, 22)
-                    // Pin the content to the window width so the grid can never size itself wider than the window.
-                    .containerRelativeFrame(.horizontal)
+                // One frame, no scrolling: the layout stretches with the window and the equaliser absorbs the extra height.
+                VStack(spacing: 14) {
+                    if page == .overview { hero }
+                    pageContent
                 }
-                .scrollBounceBehavior(.basedOnSize)
+                .padding(.leading, 96)
+                .padding(.trailing, 24)
+                .padding(.vertical, 22)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 .transition(.opacity.combined(with: .scale(scale: 0.95)))
                 rail.transition(.opacity.combined(with: .move(edge: .leading)))
             } else {
@@ -56,7 +54,7 @@ struct DashboardView: View {
         }
         .animation(.smooth(duration: 0.8), value: manager.isConnected)
         .clipped()
-        .frame(minWidth: 1040, minHeight: 700)
+        .frame(minWidth: 1000, minHeight: 720)
         .background(AmbientBackground(revealed: manager.isConnected))
         .foregroundStyle(CMFTheme.ink)
         .preferredColorScheme(.dark)
@@ -106,14 +104,14 @@ struct DashboardView: View {
     private var hero: some View {
         ZStack(alignment: .leading) {
             DotGrid(pitch: 14, dot: 1.4, color: .white.opacity(0.07))
-                .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
+            // A big close-up of the product, cropped by the card and bleeding off the right edge.
             HStack {
                 Spacer()
                 DeviceArtwork(modelName: manager.artworkModelName)
-                    .frame(maxWidth: 360)
-                    .padding(.vertical, 12)
-                    .padding(.trailing, 40)
-                    .mask(LinearGradient(stops: [.init(color: .clear, location: 0), .init(color: .black, location: 0.35)],
+                    .frame(width: 560, height: 420)
+                    .scaleEffect(1.3)
+                    .offset(x: 90, y: 26)
+                    .mask(LinearGradient(stops: [.init(color: .clear, location: 0), .init(color: .black, location: 0.3)],
                                          startPoint: .leading, endPoint: .trailing))
             }
             VStack(alignment: .leading, spacing: 10) {
@@ -139,7 +137,7 @@ struct DashboardView: View {
                 }
             }
             .padding(.leading, 30)
-            .padding(.trailing, 300)
+            .padding(.trailing, 420)
             VStack {
                 HStack {
                     Spacer()
@@ -151,7 +149,8 @@ struct DashboardView: View {
             }
             .padding(18)
         }
-        .frame(height: 230)
+        .frame(height: 210)
+        .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
         .glass(radius: 30)
     }
 
@@ -169,16 +168,83 @@ struct DashboardView: View {
     @ViewBuilder private var pageContent: some View {
         switch page {
         case .overview: overview
-        case .sound: SoundTab(manager: manager, showsBass: false).frame(maxWidth: 820)
-        case .control: ControlsTab(manager: manager).frame(maxWidth: 820)
-        case .devices: DeviceTab(manager: manager, showsDashboardButton: false).frame(maxWidth: 820)
+        case .sound: soundPage
+        case .control: ControlsTab(manager: manager, wide: true).frame(maxHeight: .infinity, alignment: .top)
+        case .devices: DeviceTab(manager: manager, showsDashboardButton: false, wide: true).frame(maxHeight: .infinity, alignment: .top)
         }
+    }
+
+    /// Sound: the equaliser with its graph filling the height, then saved presets and Spatial Audio beside it.
+    private var soundPage: some View {
+        HStack(alignment: .top, spacing: 14) {
+            NothingCard(fillsHeight: true) {
+                VStack(alignment: .leading, spacing: 14) {
+                    SectionLabel(title: "EQUALISER", trailing: manager.eqPreset.rawValue)
+                    PillSegments(options: EQPreset.allCases.map { ($0, $0.rawValue) }, selection: manager.eqPreset) { manager.setEQ($0) }
+                    EQGraph(bands: eqBands, height: nil) { index, gain in manager.editEQBand(index, gain: gain) }
+                    HStack(spacing: 8) {
+                        TextField("Preset name", text: $presetName)
+                            .textFieldStyle(.plain)
+                            .font(.system(size: 12))
+                            .padding(.horizontal, 12).padding(.vertical, 8)
+                            .background(CMFTheme.raised, in: Capsule())
+                            .onSubmit(savePreset)
+                        Button("Save", action: savePreset)
+                        Button("Reset") { manager.resetCustomEQ() }
+                    }
+                    .buttonStyle(.plain)
+                    .font(.system(size: 11, weight: .semibold))
+                }
+            }
+            VStack(spacing: 14) {
+                NothingCard(fillsHeight: true) {
+                    VStack(alignment: .leading, spacing: 10) {
+                        SectionLabel(title: "SAVED_PRESETS", trailing: "\(manager.savedEQPresets.count)")
+                        if manager.savedEQPresets.isEmpty {
+                            Text("Move the points on the graph, name the curve and save it here.")
+                                .font(.system(size: 11)).foregroundStyle(.secondary)
+                        }
+                        ForEach(manager.savedEQPresets.prefix(6)) { preset in
+                            HStack {
+                                Button { manager.applyEQPreset(preset) } label: {
+                                    HStack {
+                                        Text(preset.name).font(.system(size: 12, weight: .medium))
+                                        Spacer()
+                                        Text(preset.bands.map { "\($0 > 0 ? "+" : "")\($0)" }.joined(separator: " "))
+                                            .font(.system(size: 10, design: .monospaced)).foregroundStyle(CMFTheme.muted)
+                                    }
+                                    .padding(.horizontal, 12).padding(.vertical, 8)
+                                    .background(CMFTheme.raised, in: Capsule())
+                                }
+                                .buttonStyle(.plain)
+                                Button { manager.deleteEQPreset(preset) } label: {
+                                    Image(systemName: "trash").font(.system(size: 11)).foregroundStyle(CMFTheme.muted)
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                        Spacer(minLength: 0)
+                    }
+                }
+                NothingCard {
+                    ToggleRow(title: "Spatial Audio", caption: "Immersive surround sound. Resets EQ and Bass Enhance.",
+                              isOn: Binding(get: { manager.spatialAudioEnabled }, set: manager.setSpatialAudio))
+                }
+            }
+            .frame(width: 340)
+        }
+        .frame(maxHeight: .infinity)
+    }
+
+    private func savePreset() {
+        manager.saveCurrentEQ(named: presetName)
+        presetName = ""
     }
 
     /// The equaliser presets across the top, then battery (two parts), listening mode and bass enhance.
     private var overview: some View {
         VStack(spacing: 14) {
-            eqProfile
+            eqProfile.frame(maxHeight: .infinity)
             WeightedRow(weights: [2, 1, 1], spacing: 14) {
                 cells
                 audioMode
@@ -199,9 +265,9 @@ struct DashboardView: View {
                 SectionLabel(title: "EQ_PROFILE", trailing: manager.eqPreset.rawValue)
                 PillSegments(options: EQPreset.allCases.map { ($0, $0.rawValue) }, selection: manager.eqPreset) { manager.setEQ($0) }
                 if manager.eqPreset == .custom {
-                    EQGraph(bands: eqBands, height: 210) { index, gain in manager.editEQBand(index, gain: gain) }
+                    EQGraph(bands: eqBands, height: nil) { index, gain in manager.editEQBand(index, gain: gain) }
                 } else {
-                    EQCurve(bands: eqBands, height: 190)
+                    EQCurve(bands: eqBands, height: nil)
                     HStack {
                         ForEach(["20", "100", "1K", "5K", "20K"], id: \.self) { label in
                             Text(label).font(.system(size: 9, weight: .medium, design: .monospaced))

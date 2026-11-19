@@ -16,7 +16,8 @@ extension EQPreset {
 /// Dot-matrix frequency response curve across 20 Hz - 20 kHz.
 struct EQCurve: View {
     let bands: [Int]
-    var height: CGFloat = 110
+    /// Fixed height, or nil to fill the space it is given.
+    var height: CGFloat? = 110
     private let columns = 36
     private let limit = 6.0
 
@@ -130,7 +131,8 @@ enum EQSpline {
 /// Dragging a node changes that band's gain from -6 to +6 dB.
 struct EQGraph: View {
     let bands: [Int]
-    var height: CGFloat = 230
+    /// Fixed height, or nil to fill the space it is given.
+    var height: CGFloat? = 230
     var isEnabled = true
     let onChange: (Int, Int) -> Void
     @State private var active: Int?
@@ -159,6 +161,7 @@ struct EQGraph: View {
                     }
                     .onEnded { _ in active = nil })
             }
+            .frame(minHeight: height == nil ? 120 : nil, maxHeight: height ?? .infinity)
             .frame(height: height)
             HStack {
                 ForEach(["20", "100", "1K", "5K", "20K"], id: \.self) { label in

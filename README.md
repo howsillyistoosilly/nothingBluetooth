@@ -8,7 +8,7 @@ A native macOS menu bar app for **Nothing** and **CMF by Nothing** earbuds and h
 
 - **Menu bar** – battery next to the icon. `L·R` shows one bud icon per side with its own charge (headphones show left and right around a single headset); `AVG` and `MIN` show one figure.
 - **Quick panel** – Home, Sound, Control and Device tabs in a 400 × 660 popover.
-- **Dashboard** – every panel in one full window, opened from the panel header. It appears in the Dock while open. The device on top, equaliser presets (with an editable graph for Custom), then battery cells with the overall power supply, a vertically scrolling listening-mode selector and a rotary bass knob.
+- **Dashboard** – every panel in one full window, opened from the panel header. It appears in the Dock while open. Everything fits one frame with no scrolling and stretches as the window grows: the device on top (a big close-up of the product), equaliser presets (with an editable graph for Custom), then battery cells with the overall power supply, a vertically scrolling listening-mode selector and a rotary bass knob.
 - **Noise control** – a vertically scrolling selector for noise cancel, transparency and off; with noise cancel on, Low, Mid, High and Adaptive buttons appear underneath.
 - **Equaliser** – Balanced, Voice, More Bass, More Treble and a 3-band Custom EQ sent to the device. Save, reload and delete your own curves.
 - **Enhanced bass** (a rotary knob on the dashboard), **Spatial Audio**, **Low Lag Mode** and **Dual Connection** (read-only on some models).
