@@ -1,0 +1,103 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A10000000000000000000034 /* MenuBarLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000034 /* MenuBarLabel.swift */; };
+		A10000000000000000000033 /* GestureEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000033 /* GestureEditor.swift */; };
+		A10000000000000000000032 /* DevicesCards.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000032 /* DevicesCards.swift */; };
+		A10000000000000000000031 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000031 /* DashboardView.swift */; };
+		A10000000000000000000030 /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000030 /* EmptyStateView.swift */; };
+		A10000000000000000000001 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000001 /* App.swift */; };
+		A10000000000000000000002 /* CMFBluetoothManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000002 /* CMFBluetoothManager.swift */; };
+		A10000000000000000000003 /* CMFCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000003 /* CMFCommands.swift */; };
+		A10000000000000000000004 /* CRC16.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000004 /* CRC16.swift */; };
+		A10000000000000000000005 /* NothingPacket.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000005 /* NothingPacket.swift */; };
+		A10000000000000000000006 /* Controls.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000006 /* Controls.swift */; };
+		A10000000000000000000007 /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000007 /* MenuBarView.swift */; };
+		A10000000000000000000008 /* CMFTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000008 /* CMFTheme.swift */; };
+		A10000000000000000000009 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B20000000000000000000009 /* AppKit.framework */; };
+		A1000000000000000000000A /* IOBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2000000000000000000000A /* IOBluetooth.framework */; };
+		A1000000000000000000000B /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2000000000000000000000B /* SwiftUI.framework */; };
+		A1000000000000000000000C /* DeviceArtwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000000000000000000000E /* DeviceArtwork.swift */; };
+		A10000000000000000000011 /* EqualizerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000011 /* EqualizerView.swift */; };
+		A10000000000000000000012 /* HomeTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000012 /* HomeTab.swift */; };
+		A10000000000000000000013 /* SoundTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000013 /* SoundTab.swift */; };
+		A10000000000000000000014 /* ControlsTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000014 /* ControlsTab.swift */; };
+		A10000000000000000000015 /* DeviceTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000015 /* DeviceTab.swift */; };
+		A10000000000000000000020 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000020 /* Assets.xcassets */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		B20000000000000000000034 /* MenuBarLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/CMFControl/UI/MenuBarLabel.swift; sourceTree = SOURCE_ROOT; };
+		B20000000000000000000033 /* GestureEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/CMFControl/UI/Components/GestureEditor.swift; sourceTree = SOURCE_ROOT; };
+		B20000000000000000000032 /* DevicesCards.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/CMFControl/UI/Components/DevicesCards.swift; sourceTree = SOURCE_ROOT; };
+		B20000000000000000000031 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/CMFControl/UI/Screens/DashboardView.swift; sourceTree = SOURCE_ROOT; };
+		B20000000000000000000030 /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/CMFControl/UI/Screens/EmptyStateView.swift; sourceTree = SOURCE_ROOT; };
+		B20000000000000000000001 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/CMFControl/App.swift; sourceTree = SOURCE_ROOT; };
+		B20000000000000000000002 /* CMFBluetoothManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/CMFControl/Bluetooth/CMFBluetoothManager.swift; sourceTree = SOURCE_ROOT; };
+		B20000000000000000000003 /* CMFCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/CMFControl/Protocol/CMFCommands.swift; sourceTree = SOURCE_ROOT; };
+		B20000000000000000000004 /* CRC16.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/CMFControl/Protocol/CRC16.swift; sourceTree = SOURCE_ROOT; };
+		B20000000000000000000005 /* NothingPacket.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/CMFControl/Protocol/NothingPacket.swift; sourceTree = SOURCE_ROOT; };
+		B20000000000000000000006 /* Controls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/CMFControl/UI/Components/Controls.swift; sourceTree = SOURCE_ROOT; };
+		B20000000000000000000007 /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/CMFControl/UI/MenuBarView.swift; sourceTree = SOURCE_ROOT; };
+		B20000000000000000000008 /* CMFTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/CMFControl/UI/Theme/CMFTheme.swift; sourceTree = SOURCE_ROOT; };
+		B20000000000000000000009 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		B2000000000000000000000A /* IOBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOBluetooth.framework; path = System/Library/Frameworks/IOBluetooth.framework; sourceTree = SDKROOT; };
+		B2000000000000000000000B /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		B2000000000000000000000C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = SOURCE_ROOT; };
+		B2000000000000000000000D /* CMFControl.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CMFControl.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B2000000000000000000000E /* DeviceArtwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/CMFControl/UI/Components/DeviceArtwork.swift; sourceTree = SOURCE_ROOT; };
+		B20000000000000000000011 /* EqualizerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/CMFControl/UI/Components/EqualizerView.swift; sourceTree = SOURCE_ROOT; };
+		B20000000000000000000012 /* HomeTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/CMFControl/UI/Tabs/HomeTab.swift; sourceTree = SOURCE_ROOT; };
+		B20000000000000000000013 /* SoundTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/CMFControl/UI/Tabs/SoundTab.swift; sourceTree = SOURCE_ROOT; };
+		B20000000000000000000014 /* ControlsTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/CMFControl/UI/Tabs/ControlsTab.swift; sourceTree = SOURCE_ROOT; };
+		B20000000000000000000015 /* DeviceTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/CMFControl/UI/Tabs/DeviceTab.swift; sourceTree = SOURCE_ROOT; };
+		B20000000000000000000020 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Sources/CMFControl/Resources/Assets.xcassets; sourceTree = SOURCE_ROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C30000000000000000000001 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (A10000000000000000000009, A1000000000000000000000A, A1000000000000000000000B, ); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		D40000000000000000000001 = {isa = PBXGroup; children = (D40000000000000000000002, D40000000000000000000003, D40000000000000000000004, B2000000000000000000000C, ); sourceTree = "<group>"; };
+		D40000000000000000000002 /* Sources */ = {isa = PBXGroup; children = (B20000000000000000000001, B20000000000000000000002, B20000000000000000000003, B20000000000000000000004, B20000000000000000000005, B20000000000000000000006, B20000000000000000000007, B20000000000000000000008, B2000000000000000000000E, B20000000000000000000011, B20000000000000000000012, B20000000000000000000013, B20000000000000000000014, B20000000000000000000015, B20000000000000000000030, B20000000000000000000031, B20000000000000000000032, B20000000000000000000033, B20000000000000000000034,  B20000000000000000000020, ); name = Sources; sourceTree = "<group>"; };
+		D40000000000000000000003 /* Frameworks */ = {isa = PBXGroup; children = (B20000000000000000000009, B2000000000000000000000A, B2000000000000000000000B, ); name = Frameworks; sourceTree = "<group>"; };
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		E50000000000000000000001 /* CMFControl */ = {isa = PBXNativeTarget; buildConfigurationList = G70000000000000000000002; buildPhases = (F60000000000000000000001, C30000000000000000000001, F60000000000000000000002, ); buildRules = (); dependencies = (); name = CMFControl; productName = CMFControl; productReference = B2000000000000000000000D /* CMFControl.app */; productType = "com.apple.product-type.application"; };
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		E50000000000000000000002 /* Project object */ = {isa = PBXProject; attributes = {BuildIndependentTargetsInParallel = 1; LastUpgradeCheck = 1600; TargetAttributes = {E50000000000000000000001 = {CreatedOnToolsVersion = 16.0; }; }; }; buildConfigurationList = G70000000000000000000001; compatibilityVersion = "Xcode 14.0"; developmentRegion = en; hasScannedForEncodings = 0; knownRegions = (en, Base, ); mainGroup = D40000000000000000000001; productRefGroup = D40000000000000000000004; projectDirPath = ""; projectRoot = ""; targets = (E50000000000000000000001, ); };
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		F60000000000000000000001 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (A10000000000000000000001, A10000000000000000000002, A10000000000000000000003, A10000000000000000000004, A10000000000000000000005, A10000000000000000000006, A10000000000000000000007, A10000000000000000000008, A1000000000000000000000C, A10000000000000000000011, A10000000000000000000012, A10000000000000000000013, A10000000000000000000014, A10000000000000000000015, A10000000000000000000030, A10000000000000000000031, A10000000000000000000032, A10000000000000000000033, A10000000000000000000034, ); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXResourcesBuildPhase section */
+		F60000000000000000000002 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (A10000000000000000000020, ); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXResourcesBuildPhase section */
+
+		D40000000000000000000004 /* Products */ = {isa = PBXGroup; children = (B2000000000000000000000D /* CMFControl.app */, ); name = Products; sourceTree = "<group>"; };
+
+/* Begin XCBuildConfiguration section */
+		H80000000000000000000001 /* Debug project */ = {isa = XCBuildConfiguration; buildSettings = {ALWAYS_SEARCH_USER_PATHS = NO; CLANG_ENABLE_MODULES = YES; CLANG_ENABLE_OBJC_ARC = YES; MACOSX_DEPLOYMENT_TARGET = 14.0; SDKROOT = macosx; SWIFT_VERSION = 5.9; }; name = Debug; };
+		H80000000000000000000002 /* Release project */ = {isa = XCBuildConfiguration; buildSettings = {ALWAYS_SEARCH_USER_PATHS = NO; CLANG_ENABLE_MODULES = YES; CLANG_ENABLE_OBJC_ARC = YES; MACOSX_DEPLOYMENT_TARGET = 14.0; SDKROOT = macosx; SWIFT_VERSION = 5.9; }; name = Release; };
+		H80000000000000000000003 /* Debug app */ = {isa = XCBuildConfiguration; buildSettings = {CODE_SIGN_IDENTITY = "-"; CODE_SIGN_STYLE = Manual; CODE_SIGNING_ALLOWED = YES; CODE_SIGNING_REQUIRED = YES; ENABLE_APP_SANDBOX = NO; GENERATE_INFOPLIST_FILE = NO; INFOPLIST_FILE = Info.plist; LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks"; MACOSX_DEPLOYMENT_TARGET = 14.0; PRODUCT_BUNDLE_IDENTIFIER = com.nothing.cmfcontrol; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = macosx; SWIFT_EMIT_LOC_STRINGS = NO; SWIFT_VERSION = 5.9; }; name = Debug; };
+		H80000000000000000000004 /* Release app */ = {isa = XCBuildConfiguration; buildSettings = {CODE_SIGN_IDENTITY = "-"; CODE_SIGN_STYLE = Manual; CODE_SIGNING_ALLOWED = YES; CODE_SIGNING_REQUIRED = YES; ENABLE_APP_SANDBOX = NO; GENERATE_INFOPLIST_FILE = NO; INFOPLIST_FILE = Info.plist; LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks"; MACOSX_DEPLOYMENT_TARGET = 14.0; PRODUCT_BUNDLE_IDENTIFIER = com.nothing.cmfcontrol; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = macosx; SWIFT_EMIT_LOC_STRINGS = NO; SWIFT_VERSION = 5.9; }; name = Release; };
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		G70000000000000000000001 /* Project configuration list */ = {isa = XCConfigurationList; buildConfigurations = (H80000000000000000000001, H80000000000000000000002, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		G70000000000000000000002 /* Target configuration list */ = {isa = XCConfigurationList; buildConfigurations = (H80000000000000000000003, H80000000000000000000004, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+/* End XCConfigurationList section */
+	};
+	rootObject = E50000000000000000000002 /* Project object */;
+}
