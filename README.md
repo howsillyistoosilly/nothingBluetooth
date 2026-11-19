@@ -6,10 +6,10 @@ A native macOS menu bar app for **Nothing** and **CMF by Nothing** earbuds and h
 
 - **Menu bar** – battery next to the icon. `L·R` shows one bud icon per side with its own charge (headphones show left and right around a single headset); `AVG` and `MIN` show one figure.
 - **Quick panel** – Home, Sound, Control and Device tabs in a 400 × 660 popover.
-- **Dashboard** – every panel in one full window, opened from the panel header. It appears in the Dock while open.
-- **Noise control** – ANC (low, mid, high, adaptive), transparency and off.
+- **Dashboard** – every panel in one full window, opened from the panel header. It appears in the Dock while open. Full-width EQ with live band sliders, battery cells with the overall power supply, a scrolling listening-mode selector, and a rotary bass knob.
+- **Noise control** – a scrollable selector for noise cancel, transparency and off; with noise cancel on, Low, Mid, High and Adaptive buttons appear underneath.
 - **Equaliser** – Balanced, Voice, More Bass, More Treble and a 3-band Custom EQ sent to the device. Save, reload and delete your own curves.
-- **Enhanced bass**, **Spatial Audio**, **Low Lag Mode** and **Dual Connection** (read-only on some models).
+- **Enhanced bass** as a rotary knob, **Spatial Audio**, **Low Lag Mode** and **Dual Connection** (read-only on some models).
 - **In-ear detection** – pause when you take the buds out. Saved and re-applied every time a device connects.
 - **Gestures** – per-earbud double tap, triple tap and press-and-hold, including which noise modes a press cycles through.
 - **Find my buds** – ring the left, right or both earbuds.
@@ -78,7 +78,9 @@ Open the Device tab and turn on **Demo mode**, or choose "Try demo mode" on the 
 | `Sources/CMFControl/Bluetooth` | Connection, RFCOMM channel handling, state |
 | `Sources/CMFControl/Protocol` | Frame, CRC and command encoding |
 | `Sources/CMFControl/UI` | Menu bar label, popover tabs, dashboard, components |
-| `Sources/CMFControl/Resources/Assets.xcassets` | Product photos |
+| `Sources/CMFControl/Resources/Assets.xcassets` | Product photos and the pre-rendered backgrounds |
+| `Wallpaper` | `make-wallpaper.swift` and the 3840 × 2160 red-and-black wallpaper (`NothingController-wallpaper.png`) |
+| `Icon` | `make-icon.swift` and the app icon |
 
 ## Credits
 

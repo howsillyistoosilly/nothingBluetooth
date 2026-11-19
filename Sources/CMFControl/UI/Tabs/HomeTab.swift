@@ -22,10 +22,7 @@ struct HomeTab: View {
                 .padding(.bottom, 44)
             VStack {
                 HStack(alignment: .top) {
-                    Text(manager.displayModelName)
-                        .font(.system(size: 11, weight: .medium))
-                        .foregroundStyle(CMFTheme.ink.opacity(0.85))
-                        .lineLimit(1)
+                    DotText(text: manager.displayModelName, dot: 1.7, gap: 0.8)
                     Spacer()
                     outlineBadge(manager.connectionState.rawValue.uppercased())
                 }
@@ -96,37 +93,10 @@ struct HomeTab: View {
         NothingCard {
             VStack(alignment: .leading, spacing: 12) {
                 SectionLabel(title: "NOISE CONTROL", trailing: manager.noiseMode.rawValue)
-                PillSegments(
-                    options: [(NoiseGroup.anc, "Noise cancel"), (.transparency, "Transparency"), (.off, "Off")],
-                    selection: NoiseGroup(manager.noiseMode)
-                ) { group in
-                    switch group {
-                    case .anc: manager.setNoiseMode(manager.noiseMode.isANC ? manager.ancIntensity : .mid)
-                    case .transparency: manager.setNoiseMode(.transparency)
-                    case .off: manager.setNoiseMode(.off)
-                    }
-                }
-                if manager.noiseMode.isANC {
-                    PillSegments(
-                        options: [(ANCMode.low, "Low"), (.mid, "Mid"), (.high, "High"), (.adaptive, "Adaptive")],
-                        selection: manager.ancIntensity
-                    ) { manager.setANCIntensity($0) }
-                }
+                NoiseModeSelector(manager: manager)
             }
             .disabled(!manager.isConnected)
             .opacity(manager.isConnected ? 1 : 0.5)
-        }
-    }
-}
-
-private enum NoiseGroup: Hashable {
-    case anc, transparency, off
-
-    init(_ mode: ANCMode) {
-        switch mode {
-        case .off: self = .off
-        case .transparency: self = .transparency
-        default: self = .anc
         }
     }
 }

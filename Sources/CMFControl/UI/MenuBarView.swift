@@ -41,7 +41,7 @@ struct MenuBarView: View {
             if manager.isConnected { tabBar }
         }
         .frame(width: 400, height: 660)
-        .background(AmbientBackground())
+        .background(AmbientBackground(tall: true))
         .foregroundStyle(CMFTheme.ink)
         .preferredColorScheme(.dark)
     }

@@ -33,48 +33,21 @@ extension View {
     }
 }
 
-/// Abstract red and black artwork behind the glass: a red crescent, concentric rings, a dot field and a diagonal bar.
+/// Abstract red and black artwork behind the glass, shipped as a pre-rendered image (see `Wallpaper/make-wallpaper.swift`)
+/// instead of being drawn live, which keeps the windows light.
 struct AmbientBackground: View {
-    @State private var drift = false
+    var tall = false
 
     var body: some View {
-        GeometryReader { proxy in
-            let w = proxy.size.width
-            let h = proxy.size.height
-            let unit = max(w, h)
-            ZStack {
-                Color.black
-
-                // Crescent: a red disc with a black disc biting into it.
-                Circle().fill(CMFTheme.red)
-                    .frame(width: unit * 0.78)
-                    .position(x: w * 0.96, y: h * 0.02)
-                Circle().fill(Color.black)
-                    .frame(width: unit * 0.62)
-                    .position(x: w * 0.84 + (drift ? 10 : 0), y: h * 0.14)
-
-                // Concentric rings, bottom left.
-                ForEach(0..<7, id: \.self) { ring in
-                    Circle()
-                        .strokeBorder(Color.white.opacity(0.14 - Double(ring) * 0.012), lineWidth: 1)
-                        .frame(width: unit * (0.22 + 0.13 * CGFloat(ring)))
-                        .position(x: w * 0.04, y: h * 0.98)
-                }
-
-                // Diagonal red bar.
-                Rectangle().fill(CMFTheme.red.opacity(0.85))
-                    .frame(width: unit * 0.9, height: unit * 0.018)
-                    .rotationEffect(.degrees(-32))
-                    .position(x: w * 0.62, y: h * 0.82 + (drift ? 8 : -8))
-
-                // Red dot field.
-                DotGrid(pitch: 14, dot: 3, color: CMFTheme.red.opacity(0.75))
-                    .frame(width: unit * 0.22, height: unit * 0.14)
-                    .position(x: w * 0.88, y: h * 0.52)
+        ZStack {
+            Color.black
+            if let image = ProductCatalog.image(named: tall ? "bg-tall" : "bg-wide") {
+                Image(nsImage: image)
+                    .resizable()
+                    .scaledToFill()
             }
         }
-        .animation(.easeInOut(duration: 9).repeatForever(autoreverses: true), value: drift)
-        .onAppear { drift = true }
+        .clipped()
         .ignoresSafeArea()
         .allowsHitTesting(false)
     }

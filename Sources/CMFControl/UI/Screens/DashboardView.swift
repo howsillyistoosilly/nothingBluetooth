@@ -25,22 +25,29 @@ struct DashboardView: View {
     @State private var page: DashboardPage = .overview
 
     var body: some View {
-        HStack(spacing: 0) {
-            rail
+        // The rail floats over the content (rather than sitting beside it) so the content can be pinned to the
+        // window width; the left inset keeps it clear of the rail.
+        ZStack(alignment: .leading) {
             ScrollView {
                 if manager.isConnected {
-                    VStack(spacing: 14) {
+                    VStack(spacing: 12) {
                         hero
                         pageContent
                     }
-                    .padding(22)
+                    .padding(.leading, 84)
+                    .padding(.trailing, 12)
+                    .padding(.vertical, 12)
+                    // Pin the content to the window width so the grid can never size itself wider than the window.
+                    .containerRelativeFrame(.horizontal)
                 } else {
                     EmptyStateView(manager: manager)
                         .frame(maxWidth: 560)
                         .padding(28)
+                        .padding(.leading, 74)
                         .frame(maxWidth: .infinity)
                 }
             }
+            rail
         }
         .frame(minWidth: 1040, minHeight: 700)
         .background(AmbientBackground())
@@ -84,8 +91,8 @@ struct DashboardView: View {
         }
         .frame(width: 64)
         .glass(radius: 32)
-        .padding(.leading, 14)
-        .padding(.vertical, 14)
+        .padding(.leading, 10)
+        .padding(.vertical, 12)
     }
 
     // MARK: Hero
@@ -108,11 +115,16 @@ struct DashboardView: View {
                     chip(manager.connectionState.rawValue.uppercased(), solid: true)
                     chip(manager.isOverEar ? "HEADPHONES" : "EARBUDS", solid: false)
                 }
-                Text(manager.displayModelName.uppercased())
-                    .font(.system(size: 50, weight: .light))
-                    .tracking(-1)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.5)
+                // The largest dot size that fits the space; ViewThatFits avoids measuring with a GeometryReader.
+                ViewThatFits(in: .horizontal) {
+                    DotText(text: manager.displayModelName, dot: 6.6, gap: 2.9)
+                    DotText(text: manager.displayModelName, dot: 5.6, gap: 2.4)
+                    DotText(text: manager.displayModelName, dot: 4.6, gap: 2.0)
+                    DotText(text: manager.displayModelName, dot: 3.8, gap: 1.6)
+                    DotText(text: manager.displayModelName, dot: 3.0, gap: 1.3)
+                    DotText(text: manager.displayModelName, dot: 2.4, gap: 1.0)
+                }
+                .frame(maxWidth: .infinity, minHeight: 64, alignment: .leading)
                 HStack(spacing: 6) {
                     Circle().fill(CMFTheme.red).frame(width: 5, height: 5)
                     Text("\(manager.connectionState.rawValue) · Bluetooth")
@@ -121,6 +133,7 @@ struct DashboardView: View {
                 }
             }
             .padding(.leading, 30)
+            .padding(.trailing, 300)
             VStack {
                 HStack {
                     Spacer()
@@ -150,46 +163,75 @@ struct DashboardView: View {
         switch page {
         case .overview: overview
         case .sound:
-            HStack(alignment: .top, spacing: 14) {
+            HStack(alignment: .top, spacing: 12) {
                 SoundTab(manager: manager)
-                VStack(spacing: 14) { audioMode; powerSupply }.frame(maxWidth: 360)
+                VStack(spacing: 12) { audioMode; cells }.frame(maxWidth: 380)
             }
         case .control:
-            HStack(alignment: .top, spacing: 14) {
+            HStack(alignment: .top, spacing: 12) {
                 ControlsTab(manager: manager)
-                VStack(spacing: 14) { audioMode; coreSystem }.frame(maxWidth: 360)
+                VStack(spacing: 12) { audioMode; coreSystem }.frame(maxWidth: 380)
             }
         case .devices:
-            HStack(alignment: .top, spacing: 14) {
+            HStack(alignment: .top, spacing: 12) {
                 DeviceTab(manager: manager, showsDashboardButton: false)
-                VStack(spacing: 14) { powerSupply; coreSystem }.frame(maxWidth: 360)
+                VStack(spacing: 12) { cells; coreSystem }.frame(maxWidth: 380)
             }
         }
     }
 
+    /// Explicit rows rather than a Grid: a Grid sizes its columns from every cell's ideal width, which let wide
+    /// content push the whole page past the window.
     private var overview: some View {
-        Grid(horizontalSpacing: 14, verticalSpacing: 14) {
-            GridRow {
-                eqProfile.gridCellColumns(2)
-                powerSupply
-                bassTile
+        VStack(spacing: 12) {
+            eqProfile
+            HStack(alignment: .top, spacing: 12) {
+                cells.frame(maxWidth: .infinity)
+                audioMode.frame(maxWidth: .infinity)
             }
-            GridRow {
-                cells.gridCellColumns(2)
-                audioMode
-                coreSystem
+            .fixedSize(horizontal: false, vertical: true)
+            HStack(alignment: .top, spacing: 12) {
+                bassTile.frame(width: 250)
+                coreSystem.frame(width: 270)
+                quickSettings.frame(maxWidth: .infinity)
             }
+            .fixedSize(horizontal: false, vertical: true)
         }
     }
 
     // MARK: Tiles
 
+    private var eqBands: [Int] { manager.eqPreset == .custom ? manager.customEQ : manager.eqPreset.indicativeBands }
+
+    /// Full-width equaliser: presets and the live curve on the left, band sliders on the right.
     private var eqProfile: some View {
         NothingCard(fillsHeight: true) {
-            VStack(alignment: .leading, spacing: 14) {
-                SectionLabel(title: "EQ_PROFILE", trailing: manager.eqPreset.rawValue)
-                PillSegments(options: EQPreset.allCases.map { ($0, $0.rawValue) }, selection: manager.eqPreset) { manager.setEQ($0) }
-                EQCurve(bands: manager.eqPreset == .custom ? manager.customEQ : manager.eqPreset.indicativeBands)
+            HStack(alignment: .top, spacing: 28) {
+                VStack(alignment: .leading, spacing: 14) {
+                    SectionLabel(title: "EQ_PROFILE", trailing: manager.eqPreset.rawValue)
+                    PillSegments(options: EQPreset.allCases.map { ($0, $0.rawValue) }, selection: manager.eqPreset) { manager.setEQ($0) }
+                    EQCurve(bands: eqBands)
+                    HStack {
+                        ForEach(["20", "100", "1K", "5K", "20K"], id: \.self) { label in
+                            Text(label).font(.system(size: 9, weight: .medium, design: .monospaced))
+                                .foregroundStyle(CMFTheme.muted).frame(maxWidth: .infinity)
+                        }
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                VStack(alignment: .leading, spacing: 8) {
+                    SectionLabel(title: "BANDS", trailing: "dB")
+                    HStack(alignment: .top, spacing: 6) {
+                        ForEach(Array(["BASS", "MID", "TREBLE"].enumerated()), id: \.offset) { index, title in
+                            BandSlider(title: title, gain: eqBands[index], isEnabled: true) { gain in
+                                // Moving a band turns the current preset into the custom curve.
+                                if manager.eqPreset != .custom { manager.customEQ = manager.eqPreset.indicativeBands }
+                                manager.setCustomEQBand(index, gain: gain)
+                            }
+                        }
+                    }
+                }
+                .frame(width: 270)
             }
         }
     }
@@ -200,40 +242,43 @@ struct DashboardView: View {
         return values.isEmpty ? nil : values.reduce(0, +) / values.count
     }
 
-    private var powerSupply: some View {
-        NothingCard(fillsHeight: true) {
-            VStack(alignment: .leading, spacing: 12) {
-                SectionLabel(title: "POWER_SUPPLY")
-                BigFigure(value: batteryAverage.map(String.init) ?? "--", unit: "%",
-                          caption: manager.battery.map { [$0.headset, $0.left, $0.right].contains { $0?.isCharging == true } ? "Charging" : "Discharging" } ?? "Waiting for report")
-                ThinBar(progress: Double(batteryAverage ?? 0) / 100, tint: (batteryAverage ?? 100) < 20 ? CMFTheme.red : CMFTheme.ink)
-            }
-        }
-    }
-
+    /// Bass enhance as a rotary knob.
     private var bassTile: some View {
         NothingCard(fillsHeight: true) {
-            VStack(alignment: .leading, spacing: 12) {
-                SectionLabel(title: "BASS_ENHANCE")
-                BigFigure(value: "\(manager.bassBoost)", unit: "/5", caption: "Low-end boost")
-                DotSlider(value: Binding(get: { manager.bassBoost }, set: manager.setBassBoost), range: 0...5)
+            VStack(spacing: 10) {
+                SectionLabel(title: "BASS_ENHANCE", trailing: manager.bassBoost == 0 ? "Off" : "Level \(manager.bassBoost)")
+                RotaryKnob(value: Binding(get: { manager.bassBoost }, set: manager.setBassBoost), range: 0...5, size: 168)
+                    .frame(maxWidth: .infinity)
+                Text("Turn to add low-end punch")
+                    .font(.system(size: 11)).foregroundStyle(.secondary)
             }
         }
     }
 
+    /// Battery cells with the overall power supply figure folded in.
     private var cells: some View {
         NothingCard(fillsHeight: true) {
-            VStack(alignment: .leading, spacing: 14) {
+            VStack(alignment: .leading, spacing: 16) {
                 SectionLabel(title: "BATTERY_CELLS", trailing: manager.firmwareVersion.map { "FW \($0)" })
                 HStack(alignment: .top, spacing: 26) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        BigFigure(value: batteryAverage.map(String.init) ?? "--", unit: "%",
+                                  caption: manager.battery.map { [$0.headset, $0.left, $0.right].contains { $0?.isCharging == true } ? "Power supply · charging" : "Power supply" } ?? "Waiting for report",
+                                  size: 56)
+                        ThinBar(progress: Double(batteryAverage ?? 0) / 100, tint: (batteryAverage ?? 100) < 20 ? CMFTheme.red : CMFTheme.ink)
+                    }
+                    .frame(maxWidth: .infinity)
                     if let battery = manager.battery {
-                        ForEach(Array(cellList(battery).enumerated()), id: \.offset) { _, cell in
-                            VStack(alignment: .leading, spacing: 8) {
-                                BigFigure(value: "\(cell.1.percentage)", unit: "%", caption: cell.0 + (cell.1.isCharging ? " · charging" : ""))
-                                ThinBar(progress: Double(cell.1.percentage) / 100, tint: cell.1.percentage < 20 ? CMFTheme.red : CMFTheme.ink)
+                        HStack(alignment: .top, spacing: 20) {
+                            ForEach(Array(cellList(battery).enumerated()), id: \.offset) { _, cell in
+                                VStack(alignment: .leading, spacing: 8) {
+                                    BigFigure(value: "\(cell.1.percentage)", unit: "%", caption: cell.0 + (cell.1.isCharging ? " · charging" : ""), size: 30)
+                                    ThinBar(progress: Double(cell.1.percentage) / 100, tint: cell.1.percentage < 20 ? CMFTheme.red : CMFTheme.ink)
+                                }
+                                .frame(maxWidth: .infinity)
                             }
-                            .frame(maxWidth: .infinity)
                         }
+                        .frame(maxWidth: .infinity)
                     } else {
                         Text(manager.batteryMessage).font(.system(size: 11)).foregroundStyle(CMFTheme.muted)
                     }
@@ -253,20 +298,27 @@ struct DashboardView: View {
 
     private var audioMode: some View {
         NothingCard(fillsHeight: true) {
-            VStack(alignment: .leading, spacing: 12) {
-                SectionLabel(title: "AUDIO_MODE")
-                HStack(spacing: 6) {
-                    Text(manager.noiseMode.rawValue.uppercased()).font(.system(size: 14, weight: .bold))
-                    Circle().fill(CMFTheme.red).frame(width: 5, height: 5)
-                }
-                PillSegments(options: [(ANCMode.mid, "ANC"), (.transparency, "Trans"), (.off, "Off")],
-                             selection: manager.noiseMode.isANC ? .mid : manager.noiseMode) { mode in
-                    manager.setNoiseMode(mode == .mid && manager.noiseMode.isANC ? manager.ancIntensity : mode)
-                }
-                if manager.noiseMode.isANC {
-                    PillSegments(options: [(ANCMode.low, "Low"), (.mid, "Mid"), (.high, "High"), (.adaptive, "Auto")],
-                                 selection: manager.ancIntensity) { manager.setANCIntensity($0) }
-                }
+            VStack(alignment: .leading, spacing: 18) {
+                SectionLabel(title: "LISTENING_MODE", trailing: manager.noiseMode.rawValue)
+                NoiseModeSelector(manager: manager)
+                Spacer(minLength: 0)
+            }
+        }
+    }
+
+    private var quickSettings: some View {
+        NothingCard(fillsHeight: true) {
+            VStack(alignment: .leading, spacing: 14) {
+                SectionLabel(title: "QUICK_SETTINGS")
+                ToggleRow(title: "Spatial Audio", caption: "Surround sound",
+                          isOn: Binding(get: { manager.spatialAudioEnabled }, set: manager.setSpatialAudio))
+                Divider().overlay(CMFTheme.line)
+                ToggleRow(title: "Low Lag Mode", caption: "Less delay for games and video",
+                          isOn: Binding(get: { manager.lowLatencyEnabled }, set: manager.setLowLatency))
+                Divider().overlay(CMFTheme.line)
+                ToggleRow(title: manager.isOverEar ? "Auto pause" : "In-ear detection", caption: "Pause when you take them off",
+                          isOn: Binding(get: { manager.inEarDetectionEnabled }, set: manager.setInEarDetection),
+                          isAvailable: manager.supportsInEarDetection)
             }
         }
     }
