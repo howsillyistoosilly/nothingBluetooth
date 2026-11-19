@@ -2,6 +2,8 @@ import SwiftUI
 
 struct SoundTab: View {
     @Bindable var manager: CMFBluetoothManager
+    /// The dashboard shows bass enhance on its overview, so its Sound page leaves it out.
+    var showsBass = true
     @State private var presetName = ""
 
     private var displayedBands: [Int] {
@@ -11,7 +13,7 @@ struct SoundTab: View {
     var body: some View {
         VStack(spacing: 12) {
             equalizer
-            bassEnhance
+            if showsBass { bassEnhance }
             spatial
         }
         .disabled(!manager.isConnected)

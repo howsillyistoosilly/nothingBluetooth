@@ -31,7 +31,7 @@ struct DashboardView: View {
             ScrollView {
                 if manager.isConnected {
                     VStack(spacing: 14) {
-                        hero
+                        if page == .overview { hero }
                         pageContent
                     }
                     .padding(.leading, 96)
@@ -161,24 +161,13 @@ struct DashboardView: View {
 
     // MARK: Pages
 
+    /// Each page shows only what belongs to it; the overview is the one place with the device, battery and listening mode.
     @ViewBuilder private var pageContent: some View {
         switch page {
         case .overview: overview
-        case .sound:
-            HStack(alignment: .top, spacing: 12) {
-                SoundTab(manager: manager)
-                VStack(spacing: 14) { audioMode; cells }.frame(maxWidth: 380)
-            }
-        case .control:
-            HStack(alignment: .top, spacing: 12) {
-                ControlsTab(manager: manager)
-                VStack(spacing: 14) { audioMode; coreSystem }.frame(maxWidth: 380)
-            }
-        case .devices:
-            HStack(alignment: .top, spacing: 12) {
-                DeviceTab(manager: manager, showsDashboardButton: false)
-                VStack(spacing: 14) { cells; coreSystem }.frame(maxWidth: 380)
-            }
+        case .sound: SoundTab(manager: manager, showsBass: false).frame(maxWidth: 820)
+        case .control: ControlsTab(manager: manager).frame(maxWidth: 820)
+        case .devices: DeviceTab(manager: manager, showsDashboardButton: false).frame(maxWidth: 820)
         }
     }
 
@@ -243,7 +232,7 @@ struct DashboardView: View {
     private var cells: some View {
         NothingCard(fillsHeight: true) {
             VStack(alignment: .leading, spacing: 16) {
-                SectionLabel(title: "BATTERY_CELLS", trailing: manager.firmwareVersion.map { "FW \($0)" })
+                SectionLabel(title: "BATTERY_CELLS")
                 HStack(alignment: .top, spacing: 26) {
                     VStack(alignment: .leading, spacing: 8) {
                         BigFigure(value: batteryAverage.map(String.init) ?? "--", unit: "%",
@@ -307,24 +296,6 @@ struct DashboardView: View {
         }
     }
 
-    private var coreSystem: some View {
-        NothingCard(fillsHeight: true) {
-            VStack(alignment: .leading, spacing: 12) {
-                SectionLabel(title: "CORE_SYSTEM")
-                BigFigure(value: manager.firmwareVersion ?? "--", caption: "Firmware", size: 22)
-                if let serial = manager.serialNumber {
-                    Text(serial).font(.system(size: 9, design: .monospaced)).foregroundStyle(CMFTheme.muted).lineLimit(1)
-                }
-                Button { manager.refreshBattery() } label: {
-                    Text("REFRESH STATUS")
-                        .font(.system(size: 9.5, weight: .semibold, design: .monospaced)).tracking(0.8)
-                        .frame(maxWidth: .infinity).padding(.vertical, 9)
-                        .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(CMFTheme.lineStrong, lineWidth: 1))
-                }
-                .buttonStyle(.plain)
-            }
-        }
-    }
 }
 
 

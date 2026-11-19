@@ -22,37 +22,38 @@ struct HomeTab: View {
                 .padding(.bottom, 44)
             VStack {
                 HStack(alignment: .top) {
-                    DotText(text: manager.displayModelName, dot: 1.7, gap: 0.8)
+                    ViewThatFits(in: .horizontal) {
+                        DotText(text: manager.displayModelName, dot: 1.7, gap: 0.8)
+                        DotText(text: manager.displayModelName, dot: 1.4, gap: 0.65)
+                        DotText(text: manager.displayModelName, dot: 1.1, gap: 0.55)
+                    }
                     Spacer()
                     outlineBadge(manager.connectionState.rawValue.uppercased())
                 }
                 Spacer()
-                HStack(alignment: .bottom) {
-                    if let text = manager.menuBarBatteryText {
-                        BigFigure(value: text.replacingOccurrences(of: "%", with: ""), unit: text.contains("%") ? "%" : nil,
-                                  caption: "Battery", size: 26)
-                    }
-                    Spacer()
+                HStack {
                     if let error = manager.lastError {
-                        Text(error).font(.system(size: 9)).foregroundStyle(CMFTheme.red).lineLimit(2).frame(maxWidth: 150, alignment: .trailing)
+                        Text(error).font(.system(size: 9)).foregroundStyle(CMFTheme.red).lineLimit(2)
                     } else {
                         Text("BLUETOOTH")
                             .font(.system(size: 9, weight: .medium, design: .monospaced)).tracking(1)
                             .foregroundStyle(CMFTheme.muted)
                     }
+                    Spacer()
                 }
             }
             .padding(16)
         }
-        .frame(height: 250)
+        .frame(height: 210)
         .glass(radius: 30)
     }
 
     private func outlineBadge(_ text: String) -> some View {
         HStack(spacing: 5) {
             Circle().fill(manager.isConnected ? CMFTheme.red : CMFTheme.muted).frame(width: 5, height: 5)
-            Text(text).font(.system(size: 8.5, weight: .semibold, design: .monospaced)).tracking(0.8)
+            Text(text).font(.system(size: 8.5, weight: .semibold, design: .monospaced)).tracking(0.8).fixedSize()
         }
+        .fixedSize()
         .padding(.horizontal, 9).padding(.vertical, 5)
         .background(Color.white.opacity(0.08), in: Capsule())
         .overlay(Capsule().strokeBorder(Color.white.opacity(0.18), lineWidth: 1))
@@ -61,7 +62,7 @@ struct HomeTab: View {
     private var battery: some View {
         NothingCard {
             VStack(alignment: .leading, spacing: 12) {
-                SectionLabel(title: "BATTERY", trailing: manager.firmwareVersion.map { "FW \($0)" })
+                SectionLabel(title: "BATTERY")
                 if let battery = manager.battery {
                     HStack(alignment: .top) {
                         if let headset = battery.headset { BatteryDial(title: "HEADSET", component: headset) }
